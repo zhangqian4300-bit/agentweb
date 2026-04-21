@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Developer Console - My Agents</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-container": "#edeeef",
+                        "surface-container-high": "#e7e8e9",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface": "#f8f9fa",
+                        "outline-variant": "#c3c6d7",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "secondary-container": "#acbfff",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#ffede6",
+                        "tertiary": "#943700",
+                        "on-secondary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "on-primary-container": "#eeefff",
+                        "secondary": "#495c95",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-tint": "#0053db",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#2563eb",
+                        "on-secondary-container": "#394c84",
+                        "on-surface": "#191c1d",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-dim": "#d9dadb",
+                        "surface-variant": "#e1e3e4",
+                        "on-primary-fixed": "#00174b",
+                        "inverse-surface": "#2e3132",
+                        "inverse-on-surface": "#f0f1f2",
+                        "secondary-fixed": "#dbe1ff",
+                        "primary": "#004ac6",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-bright": "#f8f9fa",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#31447b",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191c1d",
+                        "outline": "#737686",
+                        "tertiary-container": "#bc4800",
+                        "primary-fixed": "#dbe1ff",
+                        "on-surface-variant": "#434655",
+                        "on-tertiary-fixed": "#360f00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: theme('colors.background'); color: theme('colors.on-surface'); }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .ghost-border { outline: 1px solid rgba(195, 198, 215, 0.15); }
+        .ambient-shadow { box-shadow: 0 20px 40px rgba(25, 28, 29, 0.05); }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- SideNavBar (From JSON) -->
+<nav class="h-screen w-64 fixed left-0 top-0 pt-20 border-r-0 bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-lg text-blue-600 dark:text-blue-400 font-sans text-sm font-medium z-40 flex flex-col gap-2 p-4 hidden md:flex" style="box-shadow: 1px 0 0 0 rgba(195, 198, 215, 0.15);">
+<div class="mb-8 px-2 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                D
+             </div>
+<div>
+<div class="text-lg font-black text-slate-900 dark:text-slate-100">Developer Console</div>
+<div class="text-xs text-on-surface-variant">Premium Tier</div>
+</div>
+</div>
+<button class="mb-6 w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            Deploy New Agent
+        </button>
+<div class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm rounded-xl cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<span>My Agents</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">vpn_key</span>
+<span>API Keys</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span>Usage</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-1 pt-4 border-t ghost-border">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Documentation</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-64 p-8 overflow-y-auto bg-surface relative">
+<!-- Header -->
+<header class="flex justify-between items-center mb-10">
+<div>
+<h1 class="text-3xl font-headline font-bold text-on-surface tracking-tight">My Agents</h1>
+<p class="text-on-surface-variant mt-1">Manage and monitor your deployed autonomous agents.</p>
+</div>
+<button class="flex items-center gap-2 py-2 px-4 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium hover:shadow-lg transition-all duration-200">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Create New Agent
+            </button>
+</header>
+<!-- Stats/Summary Row (Asymmetric Layout) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+<div class="md:col-span-3 bg-surface-container-lowest rounded-xl p-6 ghost-border ambient-shadow relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container opacity-5 rounded-bl-full"></div>
+<div class="flex justify-between items-center">
+<div>
+<h3 class="text-sm font-medium text-on-surface-variant mb-1">Total Invocation Volume</h3>
+<div class="text-4xl font-headline font-bold text-on-surface">1,204,592</div>
+<div class="flex items-center gap-1 text-sm text-surface-tint mt-2">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span>+12.5% vs last week</span>
+</div>
+</div>
+<div class="h-16 w-32 flex items-end gap-1 opacity-60">
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 40%"></div>
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 60%"></div>
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 35%"></div>
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 80%"></div>
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 100%"></div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-6 ghost-border ambient-shadow flex flex-col justify-center">
+<h3 class="text-sm font-medium text-on-surface-variant mb-1">Active Agents</h3>
+<div class="text-3xl font-headline font-bold text-on-surface flex items-center gap-3">
+                     3 <span class="text-sm font-normal text-on-surface-variant">/ 5 Limit</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full mt-4 overflow-hidden">
+<div class="bg-primary h-full w-3/5 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Data Table Section -->
+<div class="bg-surface-container-lowest rounded-xl ghost-border overflow-hidden ambient-shadow">
+<!-- Table Controls -->
+<div class="p-4 border-b ghost-border flex justify-between items-center bg-surface-container-low/50">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full pl-9 pr-4 py-1.5 text-sm bg-surface-container-lowest border-none rounded-lg ghost-border focus:ring-2 focus:ring-primary/20 focus:outline-none transition-shadow text-on-surface placeholder:text-on-surface-variant/50" placeholder="Search agents..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[20px]">view_column</span>
+</button>
+</div>
+</div>
+<!-- Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-xs font-medium text-on-surface-variant border-b ghost-border bg-surface-container-low/20">
+<th class="px-6 py-4 font-medium w-1/4">Agent Name</th>
+<th class="px-6 py-4 font-medium w-32">Status</th>
+<th class="px-6 py-4 font-medium w-24">Version</th>
+<th class="px-6 py-4 font-medium w-24">Price</th>
+<th class="px-6 py-4 font-medium w-32 text-right">Call Count</th>
+<th class="px-6 py-4 font-medium w-40">Created</th>
+<th class="px-6 py-4 font-medium w-20 text-center">Actions</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group border-b ghost-border last:border-0">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">support_agent</span>
+</div>
+<div>
+<div class="font-medium text-on-surface">CustomerSupport-v2</div>
+<div class="text-xs text-on-surface-variant font-mono mt-0.5">agt_8f92a1b</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"></div>
+<span class="text-on-surface">Online</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-on-surface-variant">2.1.0</td>
+<td class="px-6 py-4 text-on-surface">$0.02<span class="text-xs text-on-surface-variant">/req</span></td>
+<td class="px-6 py-4 font-mono text-right text-on-surface-variant">842,109</td>
+<td class="px-6 py-4 text-on-surface-variant">Oct 12, 2023</td>
+<td class="px-6 py-4 text-center">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md hover:bg-surface-container">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group border-b ghost-border last:border-0">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+</div>
+<div>
+<div class="font-medium text-on-surface">DataAnalyzer-Core</div>
+<div class="text-xs text-on-surface-variant font-mono mt-0.5">agt_3c4d5e6</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-primary-fixed animate-pulse"></div>
+<span class="text-primary font-medium text-xs tracking-wider uppercase">Processing</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-on-surface-variant">1.0.4</td>
+<td class="px-6 py-4 text-on-surface">$0.05<span class="text-xs text-on-surface-variant">/req</span></td>
+<td class="px-6 py-4 font-mono text-right text-on-surface-variant">350,281</td>
+<td class="px-6 py-4 text-on-surface-variant">Nov 04, 2023</td>
+<td class="px-6 py-4 text-center">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md hover:bg-surface-container">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group border-b ghost-border last:border-0 opacity-75">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">edit_document</span>
+</div>
+<div>
+<div class="font-medium text-on-surface">ContentGen-Legacy</div>
+<div class="text-xs text-on-surface-variant font-mono mt-0.5">agt_9a8b7c6</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+<span class="text-on-surface-variant">Offline</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-on-surface-variant">0.9.8</td>
+<td class="px-6 py-4 text-on-surface">$0.01<span class="text-xs text-on-surface-variant">/req</span></td>
+<td class="px-6 py-4 font-mono text-right text-on-surface-variant">12,202</td>
+<td class="px-6 py-4 text-on-surface-variant">Jan 15, 2023</td>
+<td class="px-6 py-4 text-center">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md hover:bg-surface-container">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-4 border-t ghost-border flex items-center justify-between text-sm text-on-surface-variant bg-surface-container-lowest">
+<div>Showing 1 to 3 of 3 agents</div>
+<div class="flex gap-1">
+<button class="px-3 py-1 rounded-md ghost-border text-on-surface-variant opacity-50 cursor-not-allowed">Previous</button>
+<button class="px-3 py-1 rounded-md bg-surface-container text-on-surface font-medium">1</button>
+<button class="px-3 py-1 rounded-md ghost-border hover:bg-surface-container-low transition-colors">Next</button>
+</div>
+</div>
+</div>
+<!-- Optional: Empty State Example (Hidden by default, useful for reference) -->
+<!--
+        <div class="mt-10 bg-surface-container-lowest rounded-xl p-12 ghost-border ambient-shadow flex flex-col items-center justify-center text-center">
+            <div class="w-24 h-24 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
+                <span class="material-symbols-outlined text-4xl text-outline-variant">smart_toy</span>
+            </div>
+            <h3 class="text-xl font-headline font-bold text-on-surface mb-2">No agents deployed yet</h3>
+            <p class="text-on-surface-variant max-w-md mb-6">Get started by deploying your first autonomous agent. Choose from our pre-built templates or configure your own from scratch.</p>
+            <button class="flex items-center gap-2 py-2.5 px-5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium hover:shadow-lg transition-all duration-200">
+                <span class="material-symbols-outlined text-[18px]">add</span>
+                Deploy First Agent
+            </button>
+        </div>
+        -->
+</main>
+</body></html>

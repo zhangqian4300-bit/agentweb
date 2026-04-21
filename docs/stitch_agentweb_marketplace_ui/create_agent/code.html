@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Developer Console - Create Agent</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                "colors": {
+                    "error": "#ba1a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed": "#00174b",
+                    "surface-container": "#edeeef",
+                    "surface-container-high": "#e7e8e9",
+                    "tertiary-fixed": "#ffdbcd",
+                    "surface": "#f8f9fa",
+                    "outline-variant": "#c3c6d7",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "secondary-container": "#acbfff",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-container": "#ffede6",
+                    "tertiary": "#943700",
+                    "on-secondary": "#ffffff",
+                    "background": "#f8f9fa",
+                    "on-primary-container": "#eeefff",
+                    "secondary": "#495c95",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "surface-tint": "#0053db",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary": "#ffffff",
+                    "primary-container": "#2563eb",
+                    "on-secondary-container": "#394c84",
+                    "on-surface": "#191c1d",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-dim": "#d9dadb",
+                    "surface-variant": "#e1e3e4",
+                    "on-primary-fixed": "#00174b",
+                    "inverse-surface": "#2e3132",
+                    "inverse-on-surface": "#f0f1f2",
+                    "secondary-fixed": "#dbe1ff",
+                    "primary": "#004ac6",
+                    "surface-container-low": "#f3f4f5",
+                    "surface-container-highest": "#e1e3e4",
+                    "surface-bright": "#f8f9fa",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#31447b",
+                    "on-primary": "#ffffff",
+                    "on-background": "#191c1d",
+                    "outline": "#737686",
+                    "tertiary-container": "#bc4800",
+                    "primary-fixed": "#dbe1ff",
+                    "on-surface-variant": "#434655",
+                    "on-tertiary-fixed": "#360f00"
+                },
+                "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+                },
+                "fontFamily": {
+                    "headline": ["Inter", "sans-serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Inter", "sans-serif"],
+                    "mono": ["JetBrains Mono", "monospace"]
+                }
+            },
+        },
+    }
+</script>
+<style>
+    body { font-family: 'Inter', sans-serif; background-color: theme('colors.background'); color: theme('colors.on-surface'); }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .ghost-border { outline: 1px solid rgba(195, 198, 215, 0.15); }
+    .ambient-shadow { box-shadow: 0 20px 40px rgba(25, 28, 29, 0.05); }
+    .step-hidden { display: none; }
+    .step-visible { display: block; }
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    .shimmer {
+        background: linear-gradient(90deg, #f3f4f5 25%, #e7e8e9 50%, #f3f4f5 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
+    .capability-toggle:checked + .capability-body { display: block; }
+</style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+<!-- Sidebar -->
+<nav class="h-screen w-64 fixed left-0 top-0 pt-20 border-r-0 bg-slate-50/50 backdrop-blur-lg text-blue-600 font-sans text-sm font-medium z-40 flex flex-col gap-2 p-4 hidden md:flex" style="box-shadow: 1px 0 0 0 rgba(195, 198, 215, 0.15);">
+    <div class="mb-8 px-2 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold">D</div>
+        <div>
+            <div class="text-lg font-black text-slate-900">Developer Console</div>
+            <div class="text-xs text-on-surface-variant">Premium Tier</div>
+        </div>
+    </div>
+    <button class="mb-6 w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-sm hover:opacity-90 transition-opacity">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        Deploy New Agent
+    </button>
+    <div class="flex-1 flex flex-col gap-1">
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer" href="#">
+            <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 bg-white text-blue-600 shadow-sm rounded-xl cursor-pointer" href="#">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span><span>My Agents</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer" href="#">
+            <span class="material-symbols-outlined">vpn_key</span><span>API Keys</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer" href="#">
+            <span class="material-symbols-outlined">bar_chart</span><span>Usage</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer" href="#">
+            <span class="material-symbols-outlined">settings</span><span>Settings</span>
+        </a>
+    </div>
+    <div class="mt-auto flex flex-col gap-1 pt-4 border-t ghost-border">
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-xl cursor-pointer" href="#">
+            <span class="material-symbols-outlined">help</span><span>Support</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-xl cursor-pointer" href="#">
+            <span class="material-symbols-outlined">description</span><span>Documentation</span>
+        </a>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="flex-1 ml-0 md:ml-64 p-8 overflow-y-auto bg-surface relative">
+
+    <!-- Header with Back -->
+    <header class="flex items-center gap-4 mb-10">
+        <button onclick="window.history.back()" class="p-2 rounded-xl hover:bg-surface-container-low transition-colors text-on-surface-variant">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div>
+            <h1 class="text-3xl font-headline font-bold text-on-surface tracking-tight">Create New Agent</h1>
+            <p class="text-on-surface-variant mt-1">Connect your agent and publish it to the marketplace.</p>
+        </div>
+    </header>
+
+    <!-- Stepper -->
+    <div class="flex items-center gap-0 mb-10 max-w-2xl">
+        <div id="stepper-1" class="flex items-center gap-2 cursor-pointer" onclick="goToStep(1)">
+            <div id="stepper-dot-1" class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-bold flex items-center justify-center transition-all">1</div>
+            <span id="stepper-label-1" class="text-sm font-medium text-on-surface">Connect Agent</span>
+        </div>
+        <div class="flex-1 h-px bg-outline-variant/30 mx-3"></div>
+        <div id="stepper-2" class="flex items-center gap-2 cursor-pointer" onclick="goToStep(2)">
+            <div id="stepper-dot-2" class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-bold flex items-center justify-center transition-all">2</div>
+            <span id="stepper-label-2" class="text-sm font-medium text-on-surface-variant">Confirm Info</span>
+        </div>
+        <div class="flex-1 h-px bg-outline-variant/30 mx-3"></div>
+        <div id="stepper-3" class="flex items-center gap-2 cursor-pointer" onclick="goToStep(3)">
+            <div id="stepper-dot-3" class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-bold flex items-center justify-center transition-all">3</div>
+            <span id="stepper-label-3" class="text-sm font-medium text-on-surface-variant">Publish</span>
+        </div>
+    </div>
+
+    <!-- ==================== STEP 1: Connect Agent ==================== -->
+    <section id="step-1" class="step-visible max-w-2xl">
+        <div class="bg-surface-container-lowest rounded-xl p-8 ghost-border ambient-shadow">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-primary-fixed/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary">link</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-headline font-bold text-on-surface">Connect Your Agent</h2>
+                    <p class="text-sm text-on-surface-variant">We'll fetch your agent's info from its <span class="font-mono text-xs bg-surface-container-low px-1.5 py-0.5 rounded">/.well-known/agent.json</span> endpoint.</p>
+                </div>
+            </div>
+
+            <!-- URL Input -->
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-on-surface mb-2">Agent Endpoint URL</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">public</span>
+                    <input id="agent-url" type="url" placeholder="https://your-agent.example.com" class="w-full pl-10 pr-4 py-3 text-sm bg-surface-container-lowest border-none rounded-xl ghost-border focus:ring-2 focus:ring-primary/20 focus:outline-none transition-shadow text-on-surface placeholder:text-on-surface-variant/50 font-mono"/>
+                </div>
+            </div>
+
+            <!-- Agent Key Select -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-on-surface mb-2">Agent Key</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">vpn_key</span>
+                    <select id="agent-key-select" class="w-full pl-10 pr-4 py-3 text-sm bg-surface-container-lowest border-none rounded-xl ghost-border focus:ring-2 focus:ring-primary/20 focus:outline-none transition-shadow text-on-surface appearance-none cursor-pointer">
+                        <option value="key1">ak_prod_8f92a1...  (Production Key)</option>
+                        <option value="key2">ak_test_3c4d5e...  (Test Key)</option>
+                        <option value="new" class="text-primary">+ Create New Agent Key</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px] pointer-events-none">expand_more</span>
+                </div>
+            </div>
+
+            <!-- Fetch Button -->
+            <button id="fetch-btn" onclick="simulateFetch()" class="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium hover:shadow-lg transition-all duration-200">
+                <span class="material-symbols-outlined text-[18px]">download</span>
+                Fetch Agent Info
+            </button>
+
+            <!-- Loading State -->
+            <div id="fetch-loading" class="step-hidden mt-6">
+                <div class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl">
+                    <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-sm text-on-surface-variant">Connecting to agent endpoint...</span>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="fetch-error" class="step-hidden mt-6">
+                <div class="flex items-center gap-3 p-4 bg-error-container/30 rounded-xl">
+                    <span class="material-symbols-outlined text-error text-[20px]">error</span>
+                    <div>
+                        <div class="text-sm font-medium text-error">Connection Failed</div>
+                        <div class="text-xs text-on-surface-variant mt-0.5">Unable to reach the agent endpoint. Please check the URL and ensure your agent is running.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success State -->
+            <div id="fetch-success" class="step-hidden mt-6">
+                <div class="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
+                    <div class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-[14px]">check</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-green-800">Agent Card Retrieved</div>
+                        <div class="text-xs text-green-600 mt-0.5">Found <strong>Nexus Data Synthesizer</strong> — v1.4.2 with 2 capabilities</div>
+                    </div>
+                    <button onclick="goToStep(2)" class="flex items-center gap-1 py-1.5 px-4 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors">
+                        Continue
+                        <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hint Card -->
+        <div class="mt-6 p-5 bg-primary-fixed/5 rounded-xl ghost-border flex gap-4">
+            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">info</span>
+            <div class="text-sm text-on-surface-variant leading-relaxed">
+                <strong class="text-on-surface">How it works:</strong> Your agent should expose an <span class="font-mono text-xs bg-surface-container-low px-1.5 py-0.5 rounded">/.well-known/agent.json</span> endpoint following the A2A protocol. The platform will fetch your agent's name, description, version, and capabilities automatically. You only need to set the pricing and category.
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== STEP 2: Confirm Info ==================== -->
+    <section id="step-2" class="step-hidden max-w-3xl">
+
+        <!-- Agent Card Info (Auto-filled) -->
+        <div class="bg-surface-container-lowest rounded-xl p-8 ghost-border ambient-shadow mb-6 fade-in-up">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-primary-fixed/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary">smart_toy</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-headline font-bold text-on-surface">Agent Card Info</h2>
+                        <p class="text-sm text-on-surface-variant">Auto-filled from your agent. Edit if needed.</p>
+                    </div>
+                </div>
+                <button onclick="simulateRefetch()" class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-sm text-primary hover:bg-primary-fixed/10 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">refresh</span>
+                    Re-fetch
+                </button>
+            </div>
+
+            <!-- Name -->
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-on-surface mb-2">Agent Name</label>
+                <div class="flex items-center gap-2">
+                    <input id="agent-name" type="text" value="Nexus Data Synthesizer" class="flex-1 px-4 py-2.5 text-sm bg-surface-container-low/50 border-none rounded-xl ghost-border focus:ring-2 focus:ring-primary/20 focus:outline-none transition-shadow text-on-surface font-medium"/>
+                    <span class="text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-lg whitespace-nowrap">from Agent Card</span>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-on-surface mb-2">Description</label>
+                <textarea id="agent-desc" rows="3" class="w-full px-4 py-2.5 text-sm bg-surface-container-low/50 border-none rounded-xl ghost-border focus:ring-2 focus:ring-primary/20 focus:outline-none transition-shadow text-on-surface resize-none leading-relaxed">The Nexus Data Synthesizer is a high-performance autonomous agent designed to ingest, normalize, and extract structured insights from massive, unstructured datasets. Utilizing advanced semantic parsing and a proprietary memory architecture, it excels at identifying latent patterns across disparate data silos.</textarea>
+                <div class="flex justify-end mt-1">
+                    <span class="text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-lg">from Agent Card</span>
+                </div>
+            </div>
+
+            <!-- Version -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-on-surface mb-2">Version</label>
+                <input type="text" value="1.4.2" class="w-32 px-4 py-2.5 text-sm bg-surface-container-low/50 border-none rounded-xl ghost-border focus:ring-2 focus:ring-primary/20 focus:outline-none transition-shadow text-on-surface font-mono"/>
+            </div>
+
+            <!-- Capabilities -->
+            <div>
+                <label class="block text-sm font-medium text-on-surface mb-3">Capabilities</label>
+                <div class="space-y-3">
+                    <!-- Capability 1 -->
+                    <div class="bg-surface-container-low/50 rounded-xl ghost-border overflow-hidden">
+                        <button onclick="toggleCapability(this)" class="w-full flex items-center justify-between p-4 text-left hover:bg-surface-container-low transition-colors">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary text-[18px]">input</span>
+                                <div>
+                                    <div class="text-sm font-medium text-on-surface">Data Ingestion</div>
+                                    <div class="text-xs text-on-surface-variant">Ingest and normalize data from multiple formats</div>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-on-surface-variant text-[18px] capability-chevron transition-transform">expand_more</span>
+                        </button>
+                        <div class="capability-body hidden px-4 pb-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="text-xs font-medium text-on-surface-variant mb-2 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">input</span> Input Schema
+                                    </div>
+                                    <pre class="text-xs font-mono bg-slate-900 text-slate-100 p-3 rounded-lg overflow-x-auto leading-relaxed">{
+  "source_type": "string",
+  "payload": "string | object",
+  "max_tokens": "integer"
+}</pre>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-medium text-on-surface-variant mb-2 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">output</span> Output Schema
+                                    </div>
+                                    <pre class="text-xs font-mono bg-slate-900 text-slate-100 p-3 rounded-lg overflow-x-auto leading-relaxed">{
+  "structured_data": "object",
+  "confidence": "float",
+  "metadata": "object"
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Capability 2 -->
+                    <div class="bg-surface-container-low/50 rounded-xl ghost-border overflow-hidden">
+                        <button onclick="toggleCapability(this)" class="w-full flex items-center justify-between p-4 text-left hover:bg-surface-container-low transition-colors">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary text-[18px]">query_stats</span>
+                                <div>
+                                    <div class="text-sm font-medium text-on-surface">Pattern Analysis</div>
+                                    <div class="text-xs text-on-surface-variant">Identify latent patterns and anomalies in user data</div>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-on-surface-variant text-[18px] capability-chevron transition-transform">expand_more</span>
+                        </button>
+                        <div class="capability-body hidden px-4 pb-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="text-xs font-medium text-on-surface-variant mb-2 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">input</span> Input Schema
+                                    </div>
+                                    <pre class="text-xs font-mono bg-slate-900 text-slate-100 p-3 rounded-lg overflow-x-auto leading-relaxed">{
+  "dataset_ref": "string",
+  "analysis_type": "string",
+  "depth": "integer"
+}</pre>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-medium text-on-surface-variant mb-2 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">output</span> Output Schema
+                                    </div>
+                                    <pre class="text-xs font-mono bg-slate-900 text-slate-100 p-3 rounded-lg overflow-x-auto leading-relaxed">{
+  "patterns": "array",
+  "anomalies": "array",
+  "summary": "string"
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Fields (Manual) -->
+        <div class="bg-surface-container-lowest rounded-xl p-8 ghost-border ambient-shadow mb-6 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-tertiary-fixed/20 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-tertiary">tune</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-headline font-bold text-on-surface">Platform Settings</h2>
+                    <p class="text-sm text-on-surface-variant">Set pricing and category for the marketplace.</p>
+                </div>
+            </div>
+
+            <!-- Category -->
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-on-surface mb-2">Category</label>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="selectCategory(this)" class="px-4 py-2 rounded-xl text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-colors ghost-border">Legal</button>
+                    <button onclick="selectCategory(this)" class="px-4 py-2 rounded-xl text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-colors ghost-border">Medical</button>
+                    <button onclick="selectCategory(this)" class="px-4 py-2 rounded-xl text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-colors ghost-border">Code</button>
+                    <button onclick="selectCategory(this)" class="px-4 py-2 rounded-xl text-sm font-medium bg-primary/10 text-primary ring-1 ring-primary/30 transition-colors">Data</button>
+                    <button onclick="selectCategory(this)" class="px-4 py-2 rounded-xl text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-colors ghost-border">Translation</button>
+                    <button onclick="selectCategory(this)" class="px-4 py-2 rounded-xl text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-colors ghost-border">Other</button>
+                </div>
+            </div>
+
+            <!-- Pricing -->
+            <div>
+                <label class="block text-sm font-medium text-on-surface mb-2">Pricing</label>
+                <div class="flex items-center gap-3">
+                    <div class="relative flex-1 max-w-xs">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm font-medium">&yen;</span>
+                        <input id="agent-price" type="number" value="2.50" step="0.01" min="0" class="w-full pl-8 pr-4 py-2.5 text-sm bg-surface-container-lowest border-none rounded-xl ghost-border focus:ring-2 focus:ring-primary/20 focus:outline-none transition-shadow text-on-surface font-mono"/>
+                    </div>
+                    <span class="text-sm text-on-surface-variant">per 1M tokens</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between">
+            <button onclick="goToStep(1)" class="flex items-center gap-2 py-2.5 px-5 rounded-xl text-on-surface-variant hover:bg-surface-container-low transition-colors font-medium text-sm">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                Back
+            </button>
+            <button onclick="goToStep(3)" class="flex items-center gap-2 py-2.5 px-6 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium hover:shadow-lg transition-all duration-200">
+                Preview & Publish
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ==================== STEP 3: Publish Preview ==================== -->
+    <section id="step-3" class="step-hidden max-w-3xl">
+
+        <div class="bg-surface-container-lowest rounded-xl p-8 ghost-border ambient-shadow mb-6 fade-in-up">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-green-600">visibility</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-headline font-bold text-on-surface">Marketplace Preview</h2>
+                    <p class="text-sm text-on-surface-variant">This is how your agent will appear to consumers.</p>
+                </div>
+            </div>
+
+            <!-- Preview Card (mimics marketplace appearance) -->
+            <div class="bg-surface-container-low/50 rounded-xl p-6 ghost-border">
+                <!-- Agent Header -->
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary">
+                            <span class="material-symbols-outlined text-[24px]">smart_toy</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-headline font-bold text-on-surface">Nexus Data Synthesizer</h3>
+                            <div class="flex items-center gap-3 mt-1">
+                                <span class="text-xs text-on-surface-variant">by <strong>Developer</strong></span>
+                                <span class="text-xs font-mono text-on-surface-variant">v1.4.2</span>
+                                <div class="flex items-center gap-1">
+                                    <div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+                                    <span class="text-xs text-on-surface-variant">Offline</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-headline font-bold text-on-surface">&yen;2.50</div>
+                        <div class="text-xs text-on-surface-variant">per 1M tokens</div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <p class="text-sm text-on-surface-variant leading-relaxed mb-4">The Nexus Data Synthesizer is a high-performance autonomous agent designed to ingest, normalize, and extract structured insights from massive, unstructured datasets. Utilizing advanced semantic parsing and a proprietary memory architecture, it excels at identifying latent patterns across disparate data silos.</p>
+
+                <!-- Tags & Capabilities -->
+                <div class="flex flex-wrap items-center gap-2 mb-4">
+                    <span class="px-3 py-1 rounded-lg bg-primary/10 text-primary text-xs font-medium">Data</span>
+                    <span class="px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant text-xs">Data Ingestion</span>
+                    <span class="px-3 py-1 rounded-lg bg-surface-container text-on-surface-variant text-xs">Pattern Analysis</span>
+                </div>
+
+                <!-- Stats (will be empty for new agent) -->
+                <div class="flex items-center gap-6 pt-4 border-t ghost-border">
+                    <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                        <span class="material-symbols-outlined text-[14px]">call_made</span>
+                        0 calls
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                        <span class="material-symbols-outlined text-[14px]">speed</span>
+                        — ms avg
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Reminder -->
+        <div class="p-5 bg-primary-fixed/5 rounded-xl ghost-border flex gap-4 mb-6 fade-in-up" style="animation-delay: 0.1s;">
+            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">info</span>
+            <div class="text-sm text-on-surface-variant leading-relaxed">
+                After publishing, your agent will appear as <strong class="text-on-surface">Offline</strong> in the marketplace. Connect it via WebSocket using your Agent Key to bring it online and start receiving invocations.
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between fade-in-up" style="animation-delay: 0.15s;">
+            <button onclick="goToStep(2)" class="flex items-center gap-2 py-2.5 px-5 rounded-xl text-on-surface-variant hover:bg-surface-container-low transition-colors font-medium text-sm">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                Edit Info
+            </button>
+            <button onclick="simulatePublish()" id="publish-btn" class="flex items-center gap-2 py-3 px-8 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium hover:shadow-lg transition-all duration-200 text-base">
+                <span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+                Publish to Marketplace
+            </button>
+        </div>
+
+        <!-- Success Modal Overlay -->
+        <div id="publish-success" class="step-hidden fixed inset-0 z-50 flex items-center justify-center bg-on-surface/30 backdrop-blur-sm">
+            <div class="bg-surface-container-lowest rounded-2xl p-8 max-w-md w-full mx-4 ambient-shadow text-center fade-in-up">
+                <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
+                    <span class="material-symbols-outlined text-green-600 text-[32px]">check_circle</span>
+                </div>
+                <h3 class="text-xl font-headline font-bold text-on-surface mb-2">Agent Published!</h3>
+                <p class="text-sm text-on-surface-variant mb-6 leading-relaxed">
+                    <strong>Nexus Data Synthesizer</strong> is now listed on the marketplace. Connect via WebSocket to start receiving requests.
+                </p>
+                <div class="bg-surface-container-low rounded-xl p-4 mb-6 text-left">
+                    <div class="text-xs font-medium text-on-surface-variant mb-2">Quick connect command:</div>
+                    <code class="text-xs font-mono text-primary break-all">wscat -c "wss://agentweb.io/ws/agent?agent_key=ak_prod_8f92a1..."</code>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="document.getElementById('publish-success').classList.add('step-hidden')" class="flex-1 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container-low transition-colors ghost-border">
+                        Back to My Agents
+                    </button>
+                    <button onclick="document.getElementById('publish-success').classList.add('step-hidden')" class="flex-1 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-br from-primary to-primary-container text-on-primary hover:shadow-lg transition-all">
+                        View Agent Details
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+let currentStep = 1;
+const maxStepReached = { value: 1 };
+
+function goToStep(step) {
+    if (step > maxStepReached.value) return;
+
+    document.getElementById(`step-${currentStep}`).className = 'step-hidden';
+    document.getElementById(`step-${step}`).className = 'step-visible max-w-' + (step === 2 ? '3xl' : step === 1 ? '2xl' : '3xl');
+
+    for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById(`stepper-dot-${i}`);
+        const label = document.getElementById(`stepper-label-${i}`);
+        if (i < step) {
+            dot.className = 'w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold flex items-center justify-center transition-all';
+            dot.innerHTML = '<span class="material-symbols-outlined text-[16px]">check</span>';
+            label.className = 'text-sm font-medium text-on-surface';
+        } else if (i === step) {
+            dot.className = 'w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-bold flex items-center justify-center transition-all';
+            dot.textContent = i;
+            label.className = 'text-sm font-medium text-on-surface';
+        } else {
+            dot.className = 'w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-bold flex items-center justify-center transition-all';
+            dot.textContent = i;
+            label.className = 'text-sm font-medium text-on-surface-variant';
+        }
+    }
+
+    currentStep = step;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function simulateFetch() {
+    const loading = document.getElementById('fetch-loading');
+    const success = document.getElementById('fetch-success');
+    const error = document.getElementById('fetch-error');
+    const btn = document.getElementById('fetch-btn');
+
+    error.className = 'step-hidden';
+    success.className = 'step-hidden';
+    loading.className = 'mt-6 fade-in-up';
+    btn.disabled = true;
+    btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+    setTimeout(() => {
+        loading.className = 'step-hidden';
+        success.className = 'mt-6 fade-in-up';
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        maxStepReached.value = 3;
+    }, 1800);
+}
+
+function simulateRefetch() {
+    const btn = event.currentTarget;
+    const icon = btn.querySelector('.material-symbols-outlined');
+    icon.classList.add('animate-spin');
+    setTimeout(() => icon.classList.remove('animate-spin'), 1000);
+}
+
+function simulatePublish() {
+    const btn = document.getElementById('publish-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="w-5 h-5 border-2 border-on-primary border-t-transparent rounded-full animate-spin"></div> Publishing...';
+
+    setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined text-[20px]">rocket_launch</span> Publish to Marketplace';
+        document.getElementById('publish-success').classList.remove('step-hidden');
+    }, 1500);
+}
+
+function toggleCapability(btn) {
+    const body = btn.nextElementSibling;
+    const chevron = btn.querySelector('.capability-chevron');
+    body.classList.toggle('hidden');
+    chevron.style.transform = body.classList.contains('hidden') ? '' : 'rotate(180deg)';
+}
+
+function selectCategory(btn) {
+    btn.parentElement.querySelectorAll('button').forEach(b => {
+        b.className = 'px-4 py-2 rounded-xl text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-colors ghost-border';
+    });
+    btn.className = 'px-4 py-2 rounded-xl text-sm font-medium bg-primary/10 text-primary ring-1 ring-primary/30 transition-colors';
+}
+</script>
+
+</body></html>

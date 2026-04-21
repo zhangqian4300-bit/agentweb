@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account Settings - AgentWeb</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config from Design System -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e1e3e4",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "secondary-container": "#acbfff",
+                    "primary": "#004ac6",
+                    "outline": "#737686",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#2e3132",
+                    "on-surface": "#191c1d",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#d9dadb",
+                    "secondary": "#495c95",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-secondary-container": "#394c84",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-tint": "#0053db",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "on-secondary": "#ffffff",
+                    "on-surface-variant": "#434655",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed": "#00174b",
+                    "on-background": "#191c1d",
+                    "tertiary-fixed": "#ffdbcd",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "primary-container": "#2563eb",
+                    "surface": "#f8f9fa",
+                    "inverse-primary": "#b4c5ff",
+                    "tertiary": "#943700",
+                    "surface-container": "#edeeef",
+                    "outline-variant": "#c3c6d7",
+                    "surface-container-high": "#e7e8e9",
+                    "primary-fixed": "#dbe1ff",
+                    "on-secondary-fixed-variant": "#31447b",
+                    "on-primary-fixed": "#00174b",
+                    "inverse-on-surface": "#f0f1f2",
+                    "tertiary-container": "#bc4800",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-container": "#ffede6",
+                    "surface-container-low": "#f3f4f5",
+                    "secondary-fixed": "#dbe1ff",
+                    "background": "#f8f9fa",
+                    "on-primary": "#ffffff",
+                    "on-primary-container": "#eeefff",
+                    "surface-container-highest": "#e1e3e4",
+                    "surface-bright": "#f8f9fa"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {},
+            "fontFamily": {
+                    "headline": [
+                            "Inter"
+                    ],
+                    "body": [
+                            "Inter"
+                    ],
+                    "label": [
+                            "Inter"
+                    ]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        /* Base styles to enforce design system rules globally if needed */
+        body {
+            background-color: theme('colors.surface');
+            color: theme('colors.on-surface');
+            font-family: theme('fontFamily.body');
+        }
+        
+        /* Custom Utility for Ghost Border */
+        .ghost-border {
+            box-shadow: inset 0 0 0 1px rgba(195, 198, 215, 0.15); /* outline-variant at 15% */
+        }
+
+        /* Custom Utility for Ambient Shadow */
+        .ambient-shadow {
+            box-shadow: 0 20px 40px rgba(25, 28, 29, 0.05);
+        }
+    </style>
+</head>
+<body class="antialiased h-screen overflow-hidden flex bg-surface">
+<!-- Shared Component: SideNavBar -->
+<nav class="bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-2xl font-['Inter'] text-sm font-medium fixed left-0 top-0 h-screen w-64 pt-20 pb-6 z-40 flex flex-col border-r border-slate-200/10 dark:border-slate-800/10 text-blue-700 dark:text-blue-400">
+<!-- Header -->
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">hub</span>
+</div>
+<div>
+<h1 class="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">Console</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-normal">Developer Portal</p>
+</div>
+</div>
+<!-- CTA -->
+<div class="px-4 mb-6">
+<button class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2.5 px-4 font-semibold shadow-sm transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Deploy New Agent
+            </button>
+</div>
+<!-- Main Navigation -->
+<div class="flex-1 overflow-y-auto space-y-1">
+<!-- Dashboard -->
+<a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Usage Stats -->
+<a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1" href="#">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+<span>Usage Stats</span>
+</a>
+<!-- Earnings -->
+<a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span>Earnings</span>
+</a>
+<!-- Agents -->
+<a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1" href="#">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+<span>Agents</span>
+</a>
+<!-- Settings (ACTIVE) -->
+<a class="bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-sm rounded-xl cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">manage_accounts</span>
+<span>Settings</span>
+</a>
+</div>
+<!-- Footer Navigation -->
+<div class="mt-auto pt-4 space-y-1">
+<a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1" href="#">
+<span class="material-symbols-outlined text-[20px]">menu_book</span>
+<span>Documentation</span>
+</a>
+<a class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 rounded-xl hover:translate-x-1 transition-transform duration-200 cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span>Log out</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-64 overflow-y-auto bg-surface relative">
+<!-- Decorative subtle background element -->
+<div class="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-surface-container-low to-transparent opacity-50 pointer-events-none z-0"></div>
+<div class="max-w-4xl mx-auto px-8 py-16 relative z-10">
+<!-- Page Header -->
+<header class="mb-12">
+<h1 class="text-3xl font-bold tracking-tight text-on-surface font-headline mb-2">Account Settings</h1>
+<p class="text-on-surface-variant text-base">Manage your personal information, balance, and security preferences.</p>
+</header>
+<!-- Settings Content Stack -->
+<div class="space-y-8">
+<!-- Section 1: Personal Information -->
+<section class="bg-surface-container-lowest rounded-xl ghost-border p-8 ambient-shadow flex flex-col md:flex-row gap-12">
+<div class="md:w-1/3">
+<h2 class="text-lg font-semibold text-on-surface mb-1 font-headline">Personal Information</h2>
+<p class="text-sm text-on-surface-variant leading-relaxed">Update your public facing nickname and view your registered email address.</p>
+</div>
+<div class="md:w-2/3 space-y-6">
+<!-- Nickname Field -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface" for="nickname">Nickname</label>
+<input class="w-full bg-surface-container-lowest ghost-border rounded-lg px-4 py-3 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:shadow-[0_0_0_4px_theme('colors.primary-fixed')] transition-all" id="nickname" type="text" value="DevMaverick_99"/>
+<p class="text-xs text-on-surface-variant mt-1">This is your public display name within the agent marketplace.</p>
+</div>
+<!-- Read-only Email Field -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface" for="email">Email Address</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low ghost-border rounded-lg px-4 py-3 text-sm text-on-surface-variant cursor-not-allowed focus:outline-none" id="email" readonly="" type="email" value="alex.developer@agentweb.io"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">lock</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">Contact support if you need to change your registered email address.</p>
+</div>
+<div class="pt-4 flex justify-end border-t border-surface-container-low">
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full px-6 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2 shadow-sm">
+                                Save Changes
+                            </button>
+</div>
+</div>
+</section>
+<!-- Section 2: Account Balance -->
+<section class="bg-surface-container-lowest rounded-xl ghost-border p-8 ambient-shadow flex flex-col md:flex-row gap-12 items-center">
+<div class="md:w-1/3">
+<h2 class="text-lg font-semibold text-on-surface mb-1 font-headline">Account Balance</h2>
+<p class="text-sm text-on-surface-variant leading-relaxed">Available funds for deploying and running autonomous agents.</p>
+</div>
+<div class="md:w-2/3 flex items-center justify-between bg-surface-container-low rounded-xl p-6 ghost-border">
+<div>
+<p class="text-sm font-medium text-on-surface-variant mb-1 uppercase tracking-wider text-xs">Current Balance</p>
+<p class="text-4xl font-bold text-primary tracking-tight font-headline">$2,450.00</p>
+</div>
+<button class="bg-surface-container-lowest hover:bg-surface-container-high text-on-surface rounded-full px-5 py-2.5 text-sm font-medium ghost-border transition-colors flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                            Top Up Funds
+                        </button>
+</div>
+</section>
+<!-- Section 3: Security -->
+<section class="bg-surface-container-lowest rounded-xl ghost-border p-8 ambient-shadow flex flex-col md:flex-row gap-12">
+<div class="md:w-1/3">
+<h2 class="text-lg font-semibold text-on-surface mb-1 font-headline">Security</h2>
+<p class="text-sm text-on-surface-variant leading-relaxed">Ensure your account is using a long, random password to stay secure.</p>
+</div>
+<div class="md:w-2/3 space-y-5">
+<!-- Current Password -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface" for="current_password">Current Password</label>
+<input class="w-full bg-surface-container-lowest ghost-border rounded-lg px-4 py-3 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:shadow-[0_0_0_4px_theme('colors.primary-fixed')] transition-all" id="current_password" type="password"/>
+</div>
+<!-- New Password -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface" for="new_password">New Password</label>
+<input class="w-full bg-surface-container-lowest ghost-border rounded-lg px-4 py-3 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:shadow-[0_0_0_4px_theme('colors.primary-fixed')] transition-all" id="new_password" type="password"/>
+</div>
+<!-- Confirm Password -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface" for="confirm_password">Confirm New Password</label>
+<input class="w-full bg-surface-container-lowest ghost-border rounded-lg px-4 py-3 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:shadow-[0_0_0_4px_theme('colors.primary-fixed')] transition-all" id="confirm_password" type="password"/>
+</div>
+<div class="pt-4 flex justify-end border-t border-surface-container-low">
+<button class="bg-surface-container-lowest hover:bg-surface-container-high text-on-surface rounded-full px-6 py-2.5 text-sm font-medium ghost-border transition-colors shadow-sm">
+                                Update Password
+                            </button>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

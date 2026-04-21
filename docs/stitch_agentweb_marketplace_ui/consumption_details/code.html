@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Consumption Details - AgentWeb Developer Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e1e3e4",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "secondary-container": "#acbfff",
+                    "primary": "#004ac6",
+                    "outline": "#737686",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#2e3132",
+                    "on-surface": "#191c1d",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#d9dadb",
+                    "secondary": "#495c95",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-secondary-container": "#394c84",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-tint": "#0053db",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "on-secondary": "#ffffff",
+                    "on-surface-variant": "#434655",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed": "#00174b",
+                    "on-background": "#191c1d",
+                    "tertiary-fixed": "#ffdbcd",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "primary-container": "#2563eb",
+                    "surface": "#f8f9fa",
+                    "inverse-primary": "#b4c5ff",
+                    "tertiary": "#943700",
+                    "surface-container": "#edeeef",
+                    "outline-variant": "#c3c6d7",
+                    "surface-container-high": "#e7e8e9",
+                    "primary-fixed": "#dbe1ff",
+                    "on-secondary-fixed-variant": "#31447b",
+                    "on-primary-fixed": "#00174b",
+                    "inverse-on-surface": "#f0f1f2",
+                    "tertiary-container": "#bc4800",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-container": "#ffede6",
+                    "surface-container-low": "#f3f4f5",
+                    "secondary-fixed": "#dbe1ff",
+                    "background": "#f8f9fa",
+                    "on-primary": "#ffffff",
+                    "on-primary-container": "#eeefff",
+                    "surface-container-highest": "#e1e3e4",
+                    "surface-bright": "#f8f9fa"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {},
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"],
+                    "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+        .glass-panel {
+            background: rgba(248, 249, 250, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col md:flex-row">
+<!-- TopAppBar (Mobile Only, or as standard top nav if preferred by JSON, but JSON says SideNav exists. We'll use SideNav for Web, TopApp for Mobile) -->
+<header class="md:hidden fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(25,28,29,0.05)] border-b border-outline-variant/15 flex items-center justify-between px-6 h-16 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface">menu</span>
+<div class="text-xl font-black tracking-tighter text-slate-900">AgentWeb</div>
+</div>
+<div class="flex items-center gap-4 text-slate-500">
+<span class="material-symbols-outlined">notifications</span>
+<img alt="Developer Profile Avatar" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBB_5wkhF43VSCNWeJRkSXx1h_5a_6rf177tH77yDj_9M4vmT60Ud1SCn8E8RcK9-uYw_OLYrMWD2STgB9Y9_-TxIJiBu-1VEutjmftsQoHsPxyQ4RMdJJviig-DwgAUDXK5gIXRzOapdj3-g5TYuu_FpHDAQnT4nD-N20liIWFi-EDmD4m6vaR_9VBIusjxirGJ4WgciewjqiHwKEyZZ1njIwlwt6wCoun-tHfi0KO-IEdbktcbEFxtDKTALYj3Rd_YOjWqLha-O0"/>
+</div>
+</header>
+<!-- SideNavBar (Web) -->
+<aside class="hidden md:flex flex-col border-r border-slate-200/10 fixed left-0 top-0 h-screen w-64 pt-20 pb-6 z-40 bg-slate-50/50 backdrop-blur-2xl">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary font-bold shadow-sm">
+                AW
+            </div>
+<div>
+<div class="text-lg font-bold text-slate-900 leading-tight">Console</div>
+<div class="text-xs text-on-surface-variant">Developer Portal</div>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium py-3 px-4 rounded-xl shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                Deploy New Agent
+            </button>
+</div>
+<nav class="flex-1 overflow-y-auto font-['Inter'] text-sm font-medium">
+<ul class="space-y-1">
+<li>
+<a class="cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1 text-slate-500 hover:bg-slate-100 rounded-xl hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                        Dashboard
+                    </a>
+</li>
+<li>
+<a class="cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1 bg-white text-blue-700 shadow-sm rounded-xl hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                        Usage Stats
+                    </a>
+</li>
+<li>
+<a class="cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1 text-slate-500 hover:bg-slate-100 rounded-xl hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">payments</span>
+                        Earnings
+                    </a>
+</li>
+<li>
+<a class="cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1 text-slate-500 hover:bg-slate-100 rounded-xl hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">smart_toy</span>
+                        Agents
+                    </a>
+</li>
+<li>
+<a class="cursor-pointer flex items-center gap-3 px-4 py-3 mx-3 mb-1 text-slate-500 hover:bg-slate-100 rounded-xl hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">manage_accounts</span>
+                        Settings
+                    </a>
+</li>
+</ul>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/15 px-3">
+<a class="cursor-pointer flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-colors text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">menu_book</span>
+                Documentation
+            </a>
+<a class="cursor-pointer flex items-center gap-3 px-4 py-2 mt-1 text-slate-500 hover:bg-slate-100 rounded-xl transition-colors text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+                Log out
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 pt-20 md:pt-10 px-4 md:px-8 pb-12 max-w-7xl mx-auto w-full">
+<!-- Page Header -->
+<div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="text-3xl font-bold tracking-tight text-on-surface mb-1">Consumption Details</h1>
+<p class="text-on-surface-variant text-sm">Detailed log of token usage and associated costs across all active agents.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="bg-surface-container-lowest border border-outline-variant/30 text-primary font-medium py-2 px-4 rounded-xl hover:bg-surface-container-high transition-colors text-sm flex items-center gap-2 shadow-[0_2px_10px_rgba(25,28,29,0.02)]">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                    Export CSV
+                </button>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="bg-surface-container-low rounded-xl p-4 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+<div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+<!-- Date Range -->
+<div class="relative w-full md:w-64">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline text-[18px]">calendar_today</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2 border border-outline-variant/30 rounded-xl leading-5 bg-surface-container-lowest placeholder-outline focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-all" placeholder="Oct 1, 2023 - Oct 31, 2023" type="text" value="Oct 1, 2023 - Oct 31, 2023"/>
+</div>
+<!-- Agent Search -->
+<div class="relative w-full md:w-64">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline text-[18px]">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2 border border-outline-variant/30 rounded-xl leading-5 bg-surface-container-lowest placeholder-outline focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-all" placeholder="Search Agent Name..." type="text"/>
+</div>
+</div>
+<!-- Additional Filters/Actions -->
+<div class="flex items-center gap-3 w-full md:w-auto justify-end">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 text-sm font-medium py-2 px-3 rounded-lg hover:bg-surface-container-highest">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                    More Filters
+                </button>
+</div>
+</div>
+<!-- Data Table Section -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_20px_40px_rgba(25,28,29,0.03)] border border-outline-variant/15 overflow-hidden flex flex-col">
+<div class="overflow-x-auto">
+<table class="min-w-full divide-y divide-outline-variant/20">
+<thead class="bg-surface-container-low/50">
+<tr>
+<th class="px-6 py-4 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wider" scope="col">Time</th>
+<th class="px-6 py-4 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wider" scope="col">Agent Name</th>
+<th class="px-6 py-4 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wider" scope="col">Session ID</th>
+<th class="px-6 py-4 text-right text-xs font-semibold text-on-surface-variant uppercase tracking-wider" scope="col">Input Tokens</th>
+<th class="px-6 py-4 text-right text-xs font-semibold text-on-surface-variant uppercase tracking-wider" scope="col">Output Tokens</th>
+<th class="px-6 py-4 text-right text-xs font-semibold text-on-surface-variant uppercase tracking-wider" scope="col">Total Tokens</th>
+<th class="px-6 py-4 text-right text-xs font-semibold text-on-surface-variant uppercase tracking-wider" scope="col">Cost (¥)</th>
+<th class="px-6 py-4 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wider" scope="col">Status</th>
+</tr>
+</thead>
+<tbody class="bg-surface-container-lowest divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant">
+                                Oct 24, 14:32:01
+                            </td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[16px]">smart_toy</span>
+<span class="text-sm font-medium text-on-surface">DataExtractor-Pro</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="font-mono text-xs text-outline bg-surface-container px-2 py-1 rounded">req_8f72a9b</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface-variant">1,245</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface-variant">89</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono font-medium text-on-surface">1,334</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface">0.026</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#e6f4ea] text-[#137333]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#137333]"></span>
+                                    Success
+                                </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant">
+                                Oct 24, 14:30:15
+                            </td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[16px]">smart_toy</span>
+<span class="text-sm font-medium text-on-surface">CustomerSupport-Bot</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="font-mono text-xs text-outline bg-surface-container px-2 py-1 rounded">req_3c21x5t</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface-variant">342</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface-variant">1,024</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono font-medium text-on-surface">1,366</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface">0.031</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#e6f4ea] text-[#137333]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#137333]"></span>
+                                    Success
+                                </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant">
+                                Oct 24, 14:28:44
+                            </td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[16px]">smart_toy</span>
+<span class="text-sm font-medium text-on-surface">DataExtractor-Pro</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="font-mono text-xs text-outline bg-surface-container px-2 py-1 rounded">req_9m44v2p</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface-variant">4,096</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface-variant">0</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono font-medium text-on-surface">4,096</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface">0.000</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-error-container text-error">
+<span class="material-symbols-outlined text-[12px]">error</span>
+                                    Failed
+                                </span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant">
+                                Oct 24, 14:15:10
+                            </td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[16px]">smart_toy</span>
+<span class="text-sm font-medium text-on-surface">SummaryGen-v2</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="font-mono text-xs text-outline bg-surface-container px-2 py-1 rounded">req_1a88b9z</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface-variant">8,192</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface-variant">450</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono font-medium text-on-surface">8,642</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface">0.125</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#e6f4ea] text-[#137333]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#137333]"></span>
+                                    Success
+                                </span>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant">
+                                Oct 24, 14:02:05
+                            </td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[16px]">smart_toy</span>
+<span class="text-sm font-medium text-on-surface">CustomerSupport-Bot</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="font-mono text-xs text-outline bg-surface-container px-2 py-1 rounded">req_7j55k1m</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface-variant">120</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface-variant">65</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono font-medium text-on-surface">185</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-on-surface">0.004</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#e6f4ea] text-[#137333]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#137333]"></span>
+                                    Success
+                                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="bg-surface-container-lowest px-6 py-4 border-t border-outline-variant/15 flex items-center justify-between sm:px-6 mt-auto">
+<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+<div>
+<p class="text-sm text-on-surface-variant">
+                            Showing <span class="font-medium text-on-surface">1</span> to <span class="font-medium text-on-surface">5</span> of <span class="font-medium text-on-surface">97</span> results
+                        </p>
+</div>
+<div>
+<nav aria-label="Pagination" class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+<button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-outline-variant/30 bg-surface-container-lowest text-sm font-medium text-outline hover:bg-surface-container-low">
+<span class="sr-only">Previous</span>
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button aria-current="page" class="z-10 bg-primary/5 border-primary text-primary relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                1
+                            </button>
+<button class="bg-surface-container-lowest border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                2
+                            </button>
+<button class="bg-surface-container-lowest border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                3
+                            </button>
+<span class="relative inline-flex items-center px-4 py-2 border border-outline-variant/30 bg-surface-container-lowest text-sm font-medium text-outline">
+                                ...
+                            </span>
+<button class="bg-surface-container-lowest border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                10
+                            </button>
+<button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-outline-variant/30 bg-surface-container-lowest text-sm font-medium text-outline hover:bg-surface-container-low">
+<span class="sr-only">Next</span>
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

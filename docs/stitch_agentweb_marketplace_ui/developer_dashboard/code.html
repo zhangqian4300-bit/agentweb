@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Developer Console Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error": "#ba1a1a",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-fixed": "#00174b",
+                      "surface-container": "#edeeef",
+                      "surface-container-high": "#e7e8e9",
+                      "tertiary-fixed": "#ffdbcd",
+                      "surface": "#f8f9fa",
+                      "outline-variant": "#c3c6d7",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "tertiary-fixed-dim": "#ffb596",
+                      "secondary-container": "#acbfff",
+                      "on-error": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-container": "#ffede6",
+                      "tertiary": "#943700",
+                      "on-secondary": "#ffffff",
+                      "background": "#f8f9fa",
+                      "on-primary-container": "#eeefff",
+                      "secondary": "#495c95",
+                      "on-tertiary-fixed-variant": "#7d2d00",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "surface-tint": "#0053db",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-tertiary": "#ffffff",
+                      "primary-container": "#2563eb",
+                      "on-secondary-container": "#394c84",
+                      "on-surface": "#191c1d",
+                      "inverse-primary": "#b4c5ff",
+                      "surface-dim": "#d9dadb",
+                      "surface-variant": "#e1e3e4",
+                      "on-primary-fixed": "#00174b",
+                      "inverse-surface": "#2e3132",
+                      "inverse-on-surface": "#f0f1f2",
+                      "secondary-fixed": "#dbe1ff",
+                      "primary": "#004ac6",
+                      "surface-container-low": "#f3f4f5",
+                      "surface-container-highest": "#e1e3e4",
+                      "surface-bright": "#f8f9fa",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed-variant": "#31447b",
+                      "on-primary": "#ffffff",
+                      "on-background": "#191c1d",
+                      "outline": "#737686",
+                      "tertiary-container": "#bc4800",
+                      "primary-fixed": "#dbe1ff",
+                      "on-surface-variant": "#434655",
+                      "on-tertiary-fixed": "#360f00"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Inter"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Inter"
+                      ],
+                      "mono": [
+                              "JetBrains Mono"
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel {
+            background: rgba(248, 249, 250, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .ghost-border { border: 1px solid rgba(195, 198, 215, 0.15); }
+        .ambient-shadow { box-shadow: 0 20px 40px rgba(25, 28, 29, 0.05); }
+        .gradient-primary { background: linear-gradient(135deg, #004ac6, #2563eb); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex antialiased">
+<!-- SideNavBar (from JSON) -->
+<nav class="h-screen w-64 fixed left-0 top-0 pt-20 border-r-0 tonal-shift-right bg-slate-100 dark:bg-slate-900 bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-lg text-blue-600 dark:text-blue-400 font-sans text-sm font-medium z-40 hidden md:block">
+<div class="px-6 mb-8 absolute top-6 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-on-primary font-bold text-xs">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</div>
+<div>
+<div class="text-lg font-black text-slate-900 dark:text-slate-100 leading-tight">Developer Console</div>
+<div class="text-xs text-on-surface-variant font-mono">Premium Tier</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 p-4 h-full pt-4">
+<button class="w-full text-left bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer active:opacity-80 hover:translate-x-1 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </button>
+<button class="w-full text-left text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer active:opacity-80 hover:translate-x-1 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+                My Agents
+            </button>
+<button class="w-full text-left text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer active:opacity-80 hover:translate-x-1 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span>
+                API Keys
+            </button>
+<button class="w-full text-left text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer active:opacity-80 hover:translate-x-1 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+                Usage
+            </button>
+<button class="w-full text-left text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer active:opacity-80 hover:translate-x-1 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </button>
+<div class="mt-auto mb-4">
+<button class="w-full mb-4 gradient-primary text-on-primary rounded-xl px-4 py-3 text-center font-semibold hover:opacity-90 transition-opacity ambient-shadow">
+                    Deploy New Agent
+                </button>
+<div class="flex flex-col gap-1">
+<button class="w-full text-left text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl px-4 py-2 flex items-center gap-3 cursor-pointer active:opacity-80 text-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="help">help</span>
+                        Support
+                    </button>
+<button class="w-full text-left text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl px-4 py-2 flex items-center gap-3 cursor-pointer active:opacity-80 text-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="description">description</span>
+                        Documentation
+                    </button>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-6 lg:p-12 relative overflow-y-auto">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div>
+<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-on-surface mb-2">Welcome back, Developer</h1>
+<p class="text-on-surface-variant font-medium">Here's what's happening with your agents today.</p>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-5 ambient-shadow flex items-center gap-6 min-w-[280px]">
+<div>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest font-semibold mb-1">Current Balance</p>
+<p class="text-2xl font-bold font-mono tracking-tight">¥4,280.50</p>
+</div>
+<div class="h-10 w-px bg-surface-container-high"></div>
+<button class="text-primary hover:bg-surface-container-low p-2 rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+<!-- Quick Stats -->
+<div class="col-span-1 md:col-span-2 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 ghost-border relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-surface-container-low rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+<p class="text-sm text-on-surface-variant font-medium mb-3 relative z-10">Today's Spend</p>
+<p class="text-2xl font-bold font-mono text-on-surface relative z-10 mb-2">¥124.00</p>
+<div class="flex items-center gap-1 text-error text-xs font-medium relative z-10">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+12% vs yesterday</span>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 ghost-border relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-surface-container-low rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+<p class="text-sm text-on-surface-variant font-medium mb-3 relative z-10">Today's Earnings</p>
+<p class="text-2xl font-bold font-mono text-on-surface relative z-10 mb-2">¥850.50</p>
+<div class="flex items-center gap-1 text-[#006837] text-xs font-medium relative z-10">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+5% vs yesterday</span>
+</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 ghost-border relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-surface-container-low rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+<p class="text-sm text-on-surface-variant font-medium mb-3 relative z-10">Active Agents</p>
+<div class="flex items-baseline gap-2 mb-2 relative z-10">
+<p class="text-2xl font-bold font-mono text-on-surface">12</p>
+<p class="text-sm text-on-surface-variant font-mono">/ 20</p>
+</div>
+<div class="flex items-center gap-2 relative z-10">
+<span class="w-2 h-2 rounded-full bg-[#006837] animate-pulse"></span>
+<span class="text-xs text-on-surface-variant">All systems nominal</span>
+</div>
+</div>
+<!-- Stat Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 ghost-border relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-surface-container-low rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+<p class="text-sm text-on-surface-variant font-medium mb-3 relative z-10">Total Calls (24h)</p>
+<p class="text-2xl font-bold font-mono text-on-surface relative z-10 mb-2">45.2k</p>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full mt-2 relative z-10">
+<div class="bg-primary h-1.5 rounded-full" style="width: 75%"></div>
+</div>
+</div>
+</div>
+<!-- Quick Actions Panel -->
+<div class="col-span-1 md:col-span-1 lg:col-span-1 bg-surface-container-low rounded-xl p-6 relative overflow-hidden flex flex-col justify-center">
+<h3 class="text-sm font-bold text-on-surface uppercase tracking-wider mb-4">Quick Actions</h3>
+<div class="flex flex-col gap-3">
+<button class="w-full bg-surface-container-lowest hover:bg-surface-container-high transition-colors text-on-surface rounded-xl p-3 flex items-center justify-between group ghost-border">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">add_circle</span>
+<span class="font-medium text-sm">Create Agent</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform text-[18px]">arrow_forward</span>
+</button>
+<button class="w-full bg-surface-container-lowest hover:bg-surface-container-high transition-colors text-on-surface rounded-xl p-3 flex items-center justify-between group ghost-border">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">key</span>
+<span class="font-medium text-sm">Create API Key</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Recent Activity Asymmetric Layout -->
+<div class="mt-8">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-xl font-bold text-on-surface">Recent Calls</h2>
+<button class="text-primary text-sm font-medium hover:underline flex items-center gap-1">
+                    View Full Logs
+                    <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</button>
+</div>
+<div class="bg-surface-container-lowest rounded-xl ghost-border overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-xs uppercase tracking-wider text-on-surface-variant font-semibold">
+<th class="p-4 rounded-tl-xl">Timestamp</th>
+<th class="p-4">Agent ID</th>
+<th class="p-4">Endpoint</th>
+<th class="p-4">Status</th>
+<th class="p-4 rounded-tr-xl text-right">Latency</th>
+</tr>
+</thead>
+<tbody class="text-sm font-mono text-on-surface">
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-4 text-on-surface-variant group-hover:text-on-surface transition-colors">10:45:21 AM</td>
+<td class="p-4">agt_9f8a7b6c</td>
+<td class="p-4">/v1/chat/completions</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e6f4ea] text-[#006837] text-xs font-sans font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-[#006837]"></span>
+                                        200 OK
+                                    </span>
+</td>
+<td class="p-4 text-right">245ms</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-4 text-on-surface-variant group-hover:text-on-surface transition-colors">10:44:12 AM</td>
+<td class="p-4">agt_2c3d4e5f</td>
+<td class="p-4">/v1/embeddings</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e6f4ea] text-[#006837] text-xs font-sans font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-[#006837]"></span>
+                                        200 OK
+                                    </span>
+</td>
+<td class="p-4 text-right">112ms</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-4 text-on-surface-variant group-hover:text-on-surface transition-colors">10:42:05 AM</td>
+<td class="p-4">agt_9f8a7b6c</td>
+<td class="p-4">/v1/chat/completions</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-error text-xs font-sans font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                        429 Rate Limit
+                                    </span>
+</td>
+<td class="p-4 text-right text-error">15ms</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-4 text-on-surface-variant group-hover:text-on-surface transition-colors">10:38:55 AM</td>
+<td class="p-4">agt_1a2b3c4d</td>
+<td class="p-4">/v1/models/list</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e6f4ea] text-[#006837] text-xs font-sans font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-[#006837]"></span>
+                                        200 OK
+                                    </span>
+</td>
+<td class="p-4 text-right">85ms</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group border-b-0">
+<td class="p-4 text-on-surface-variant group-hover:text-on-surface transition-colors">10:35:10 AM</td>
+<td class="p-4">agt_9f8a7b6c</td>
+<td class="p-4">/v1/chat/completions</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e6f4ea] text-[#006837] text-xs font-sans font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-[#006837]"></span>
+                                        200 OK
+                                    </span>
+</td>
+<td class="p-4 text-right">890ms</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</body></html>
