@@ -59,6 +59,14 @@ export function Navbar() {
                 <DropdownMenuItem
                   onClick={() => {
                     logout();
+                    router.push("/login");
+                  }}
+                >
+                  切换账号
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    logout();
                     router.push("/");
                   }}
                 >

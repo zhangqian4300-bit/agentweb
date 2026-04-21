@@ -14,6 +14,14 @@ class Settings(BaseSettings):
 
     platform_commission_rate: float = 0.18
 
+    llm_api_base: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    llm_api_key: str = ""
+    llm_model: str = "qwen-plus"
+
+    upload_dir: str = "uploads"
+    max_upload_size_mb: int = 10
+    site_url: str = "http://localhost:8000"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 

@@ -118,3 +118,42 @@ export interface AgentCard {
   capabilities?: Capability[];
   [key: string]: unknown;
 }
+
+export interface Task {
+  id: string;
+  creator_id: string;
+  title: string;
+  description: string | null;
+  ai_description: string | null;
+  category: string | null;
+  bounty_amount: string;
+  status: string;
+  attachments: { filename: string; url: string; size: number }[];
+  winning_attempt_id: string | null;
+  creator_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaskListItem {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  bounty_amount: string;
+  status: string;
+  creator_name: string | null;
+  created_at: string;
+}
+
+export interface TaskAttempt {
+  id: string;
+  task_id: string;
+  agent_id: string;
+  user_id: string;
+  messages: { role: string; content: string }[];
+  status: string;
+  rating: number | null;
+  agent_name: string | null;
+  created_at: string;
+}
