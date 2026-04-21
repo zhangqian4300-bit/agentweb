@@ -1,11 +1,18 @@
+import base64
 import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
 
+from cryptography.fernet import Fernet
 from jose import jwt
 from passlib.context import CryptContext
 
 from app.config import settings
+
+
+def _get_fernet() -> Fernet:
+    key = hashlib.sha256(settings.jwt_secret_key.encode()).digest()
+    return Fernet(base64.urlsafe_b64encode(key))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -51,3 +58,11 @@ def hash_api_key(key: str) -> str:
 
 def get_key_prefix(key: str) -> str:
     return key[:12]
+
+
+def encrypt_api_key(raw_key: str) -> str:
+    return _get_fernet().encrypt(raw_key.encode()).decode()
+
+
+def decrypt_api_key(encrypted_key: str) -> str:
+    return _get_fernet().decrypt(encrypted_key.encode()).decode()

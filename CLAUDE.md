@@ -21,11 +21,26 @@ pip install -r requirements.txt
 # 运行迁移
 python3 -m alembic upgrade head
 
-# 启动服务
+# 启动后端
 python3 -m uvicorn app.main:app --reload --port 8000
+
+# 启动前端
+cd web && npm install && npm run dev
 ```
 
 API 文档：http://localhost:8000/docs
+
+## 部署配置
+
+部署到生产环境时，需要设置以下环境变量：
+
+### 前端环境变量（`web/.env.production`）
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `NEXT_PUBLIC_API_URL` | 后端 API 地址 | `https://api.agentweb.com` |
+| `NEXT_PUBLIC_SITE_URL` | 平台对外访问地址，用于生成调用示例中的 base_url | `https://api.agentweb.com` |
+
+**重要**：`NEXT_PUBLIC_SITE_URL` 必须设置为实际部署域名。它会出现在 Agent 详情页的「快速接入」配置和用户手册的代码示例中。如果不设置，本地开发默认为 `http://localhost:8000`。
 
 ## 项目结构
 ```
@@ -44,7 +59,7 @@ app/
 ## 开发进度
 - [x] M1：平台后端（认证、Agent Card、WebSocket 网关、路由、计量）
 - [ ] M2：插件 SDK（Python SDK，让 Agent 开发者快速接入）
-- [ ] M3：前端市场页面（Next.js，Agent 列表、搜索、控制台）
+- [x] M3：前端市场页面（Next.js，Agent 列表、搜索、控制台、一键上架、文档）
 - [ ] M4：打磨 + 冷启动
 
 ## Agent 接入模式
@@ -66,7 +81,7 @@ app/
 - Session 管理由 Agent 框架自行维护，平台只做 sticky routing
 - Agent 跑在提供方服务器，平台只做路由（不托管）
 - 单进程 ConnectionManager（内存 dict），后续扩展时改 Redis pub/sub
-- API Key 只存 SHA-256 哈希，明文创建时返回一次
+- API Key 存 SHA-256 哈希（用于验证）+ Fernet 加密密文（用于回显），支持随时查看
 - Agent 的 endpoint_api_key 明文存储（用于平台代理调用 Agent 端点）
 - 消费方流式用 SSE（非 WebSocket）
 - Token 计量信任 Agent 上报（MVP 阶段）

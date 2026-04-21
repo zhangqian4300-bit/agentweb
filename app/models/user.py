@@ -33,6 +33,7 @@ class APIKey(UUIDPrimaryKeyMixin, Base):
     key_type: Mapped[str] = mapped_column(String(20), nullable=False)
     key_hash: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     key_prefix: Mapped[str] = mapped_column(String(12), nullable=False)
+    encrypted_key: Mapped[Optional[str]] = mapped_column(String(500))
     name: Mapped[Optional[str]] = mapped_column(String(100))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     last_used_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))

@@ -61,6 +61,25 @@ async def get_agent(db: AsyncSession, agent_id: uuid.UUID) -> Agent:
     return agent
 
 
+async def resolve_agent_by_model(db: AsyncSession, model: str) -> Agent:
+    try:
+        agent_id = uuid.UUID(model)
+        return await get_agent(db, agent_id)
+    except ValueError:
+        pass
+    stmt = (
+        select(Agent)
+        .where(Agent.name == model, Agent.is_listed == True, Agent.status == "online")
+        .order_by(Agent.total_calls.desc())
+        .limit(1)
+    )
+    result = await db.execute(stmt)
+    agent = result.scalar_one_or_none()
+    if not agent:
+        raise NotFoundError(f"No online agent found for model '{model}'")
+    return agent
+
+
 async def update_agent(
     db: AsyncSession, agent_id: uuid.UUID, owner_id: uuid.UUID, data: AgentUpdate
 ) -> Agent:

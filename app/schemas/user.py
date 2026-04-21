@@ -57,3 +57,7 @@ class APIKeyResponse(BaseModel):
 
 class APIKeyCreatedResponse(APIKeyResponse):
     key: str
+
+
+class APIKeyRevealResponse(BaseModel):
+    key: str

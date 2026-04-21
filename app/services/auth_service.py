@@ -10,6 +10,7 @@ from app.core.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
+    encrypt_api_key,
     generate_api_key,
     get_key_prefix,
     hash_api_key,
@@ -86,6 +87,7 @@ async def create_api_key(
         key_type=key_type,
         key_hash=key_hash,
         key_prefix=key_prefix,
+        encrypted_key=encrypt_api_key(raw_key),
         name=name,
     )
     db.add(api_key)

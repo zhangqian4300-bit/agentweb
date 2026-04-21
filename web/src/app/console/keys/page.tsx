@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Table,
   TableBody,
@@ -30,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Eye, EyeOff, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 export default function APIKeysPage() {
@@ -37,6 +37,8 @@ export default function APIKeysPage() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [createdKey, setCreatedKey] = useState<APIKeyCreated | null>(null);
+
+  const [revealedKeys, setRevealedKeys] = useState<Record<string, string>>({});
 
   const [newKeyType, setNewKeyType] = useState("api_key");
   const [newKeyName, setNewKeyName] = useState("");
@@ -120,7 +122,45 @@ export default function APIKeysPage() {
                     {key.key_type === "agent_key" ? "Agent Key" : "API Key"}
                   </Badge>
                 </TableCell>
-                <TableCell className="font-mono text-sm">{key.key_prefix}...</TableCell>
+                <TableCell className="font-mono text-sm">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="min-w-[120px]">
+                      {revealedKeys[key.id] || `${key.key_prefix}${"•".repeat(24)}`}
+                    </span>
+                    <button
+                      className="text-gray-400 hover:text-gray-600"
+                      onClick={async () => {
+                        if (revealedKeys[key.id]) {
+                          setRevealedKeys((prev) => {
+                            const next = { ...prev };
+                            delete next[key.id];
+                            return next;
+                          });
+                        } else {
+                          try {
+                            const data = await api<{ key: string }>(`/api/v1/keys/${key.id}/reveal`);
+                            setRevealedKeys((prev) => ({ ...prev, [key.id]: data.key }));
+                          } catch {
+                            toast.error("获取 Key 失败");
+                          }
+                        }
+                      }}
+                    >
+                      {revealedKeys[key.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                    {revealedKeys[key.id] && (
+                      <button
+                        className="text-gray-400 hover:text-gray-600"
+                        onClick={() => {
+                          navigator.clipboard.writeText(revealedKeys[key.id]);
+                          toast.success("已复制");
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </button>
+                    )}
+                  </span>
+                </TableCell>
                 <TableCell>
                   {key.last_used_at
                     ? new Date(key.last_used_at).toLocaleDateString("zh-CN")
@@ -186,11 +226,6 @@ export default function APIKeysPage() {
           <DialogHeader>
             <DialogTitle>Key 创建成功</DialogTitle>
           </DialogHeader>
-          <Alert>
-            <AlertDescription>
-              请立即复制此 Key，关闭后将无法再次查看。
-            </AlertDescription>
-          </Alert>
           <div className="rounded-lg bg-gray-100 p-3">
             <code className="break-all text-sm">{createdKey?.key}</code>
           </div>

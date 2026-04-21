@@ -26,6 +26,18 @@ export function Navbar() {
         </Link>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/publish"
+            className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+          >
+            上架 Agent
+          </Link>
+          <Link
+            href="/docs"
+            className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+          >
+            文档
+          </Link>
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted">

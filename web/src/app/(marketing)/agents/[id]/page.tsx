@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/auth";
@@ -12,71 +12,167 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Copy } from "lucide-react";
+import { toast } from "sonner";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+const WS_BASE = API_BASE.replace(/^http/, "ws");
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  streaming?: boolean;
+}
 
 function Playground({ agentId }: { agentId: string }) {
   const { user } = useAuth();
   const [apiKey, setApiKey] = useState("");
   const [message, setMessage] = useState("");
-  const [response, setResponse] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
-  const responseRef = useRef<HTMLPreElement>(null);
+  const [connected, setConnected] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const currentAssistant = useRef("");
 
-  const handleSend = useCallback(async () => {
-    if (!message.trim() || !apiKey) return;
+  const scrollToBottom = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, []);
+
+  const disconnect = useCallback(() => {
+    if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+    if (wsRef.current) {
+      wsRef.current.onclose = null;
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    setConnected(false);
+    setConnecting(false);
+  }, []);
+
+  const connect = useCallback(() => {
+    if (!apiKey) return;
+    disconnect();
+    setConnecting(true);
+    setError("");
+
+    const ws = new WebSocket(`${WS_BASE}/ws/chat?api_key=${encodeURIComponent(apiKey)}`);
+    wsRef.current = ws;
+
+    ws.onopen = () => {};
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      const type = data.type;
+
+      if (type === "connected") {
+        setConnected(true);
+        setConnecting(false);
+        setError("");
+        return;
+      }
+
+      if (type === "stream_chunk") {
+        currentAssistant.current += data.content || "";
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last && last.role === "assistant" && last.streaming) {
+            updated[updated.length - 1] = { ...last, content: currentAssistant.current };
+          }
+          return updated;
+        });
+        scrollToBottom();
+        return;
+      }
+
+      if (type === "stream_end") {
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last && last.role === "assistant") {
+            updated[updated.length - 1] = { ...last, streaming: false };
+          }
+          return updated;
+        });
+        setSending(false);
+        currentAssistant.current = "";
+        return;
+      }
+
+      if (type === "response") {
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last && last.role === "assistant") {
+            updated[updated.length - 1] = { role: "assistant", content: data.content || "" };
+          }
+          return updated;
+        });
+        setSending(false);
+        scrollToBottom();
+        return;
+      }
+
+      if (type === "error") {
+        setError(data.detail || "调用出错");
+        setSending(false);
+        return;
+      }
+
+      if (type === "ping") {
+        ws.send(JSON.stringify({ type: "pong" }));
+      }
+    };
+
+    ws.onclose = () => {
+      setConnected(false);
+      setConnecting(false);
+      setSending(false);
+      reconnectTimer.current = setTimeout(() => {
+        if (wsRef.current === ws && apiKey) {
+          connect();
+        }
+      }, 3000);
+    };
+
+    ws.onerror = () => {
+      setError("WebSocket 连接失败");
+    };
+  }, [apiKey, disconnect, scrollToBottom]);
+
+  useEffect(() => {
+    return () => disconnect();
+  }, [disconnect]);
+
+  const handleSend = useCallback(() => {
+    if (!message.trim() || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
     setSending(true);
     setError("");
-    setResponse("");
 
-    try {
-      const res = await fetch(`${API_BASE}/api/v1/agent/${agentId}/invoke`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({ message: message.trim(), stream: true }),
-      });
+    const userMsg: ChatMessage = { role: "user", content: message.trim() };
+    const assistantMsg: ChatMessage = { role: "assistant", content: "", streaming: true };
+    currentAssistant.current = "";
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: res.statusText }));
-        throw new Error(err.detail || `请求失败 (${res.status})`);
-      }
-
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-      if (!reader) throw new Error("无法读取响应流");
-
-      let full = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const text = decoder.decode(value, { stream: true });
-        for (const line of text.split("\n")) {
-          if (!line.startsWith("data:")) continue;
-          const dataStr = line.slice(5).trim();
-          try {
-            const data = JSON.parse(dataStr);
-            if (data.content) {
-              full += data.content;
-              setResponse(full);
-            }
-          } catch {
-            // skip non-JSON lines
-          }
-        }
-      }
-      if (!full) setResponse("(空响应)");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "调用失败");
-    } finally {
-      setSending(false);
-    }
-  }, [agentId, message, apiKey]);
+    wsRef.current.send(
+      JSON.stringify({
+        type: "chat",
+        agent_id: agentId,
+        message: message.trim(),
+        stream: true,
+      })
+    );
+    setMessage("");
+    setTimeout(scrollToBottom, 50);
+  }, [agentId, message, scrollToBottom]);
 
   if (!user) {
     return (
@@ -94,58 +190,212 @@ function Playground({ agentId }: { agentId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">在线试用</CardTitle>
+        <CardTitle className="flex items-center justify-between text-lg">
+          <span>在线试用</span>
+          {connected && (
+            <span className="flex items-center gap-1.5 text-xs font-normal text-green-600">
+              <span className="h-2 w-2 rounded-full bg-green-500" />
+              已连接
+            </span>
+          )}
+          {connecting && (
+            <span className="text-xs font-normal text-yellow-600">连接中...</span>
+          )}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label className="text-sm">API Key</Label>
-          <Input
-            type="password"
-            placeholder="粘贴你的 API Key（sk_...）"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-          />
-          <p className="text-xs text-gray-400">
-            还没有？
-            <Link href="/console/keys" className="text-blue-600 hover:underline">去创建</Link>
-          </p>
-        </div>
+        {!connected && (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label className="text-sm">API Key</Label>
+              <Input
+                type="password"
+                placeholder="粘贴你的 API Key（sk_...）"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+              />
+              <p className="text-xs text-gray-400">
+                还没有？
+                <Link href="/console/keys" className="text-blue-600 hover:underline">去创建</Link>
+              </p>
+            </div>
+            <Button onClick={connect} disabled={!apiKey || connecting} className="w-full">
+              {connecting ? "连接中..." : "连接"}
+            </Button>
+          </div>
+        )}
 
-        <div className="space-y-2">
-          <Label className="text-sm">消息</Label>
-          <Textarea
-            placeholder="输入你想对 Agent 说的话..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows={3}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSend();
-            }}
-          />
-        </div>
+        {connected && (
+          <>
+            <div
+              ref={scrollRef}
+              className="flex h-80 flex-col gap-3 overflow-y-auto rounded-lg border bg-gray-50 p-4"
+            >
+              {messages.length === 0 && (
+                <p className="m-auto text-sm text-gray-400">发送消息开始对话</p>
+              )}
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[80%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm ${
+                      msg.role === "user"
+                        ? "bg-blue-600 text-white"
+                        : "bg-white text-gray-800 shadow-sm"
+                    }`}
+                  >
+                    {msg.content || (msg.streaming ? "..." : "(空响应)")}
+                    {msg.streaming && (
+                      <span className="ml-1 inline-block h-3 w-1.5 animate-pulse rounded-sm bg-gray-400" />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
 
-        <Button
-          onClick={handleSend}
-          disabled={sending || !message.trim() || !apiKey}
-          className="w-full"
-        >
-          {sending ? "调用中..." : "发送"}
-        </Button>
+            <div className="flex gap-2">
+              <Textarea
+                placeholder="输入消息... (Ctrl+Enter 发送)"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={2}
+                className="flex-1 resize-none"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+              />
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={handleSend}
+                  disabled={sending || !message.trim()}
+                  className="h-full"
+                >
+                  {sending ? "..." : "发送"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex justify-between">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setMessages([]);
+                  wsRef.current?.send(JSON.stringify({ type: "clear_history" }));
+                }}
+                className="text-xs text-gray-400"
+              >
+                清空对话
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={disconnect}
+                className="text-xs text-gray-400"
+              >
+                断开连接
+              </Button>
+            </div>
+          </>
+        )}
 
         {error && (
           <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</div>
         )}
+      </CardContent>
+    </Card>
+  );
+}
 
-        {response && (
-          <div className="space-y-2">
-            <Label className="text-sm">响应</Label>
-            <pre
-              ref={responseRef}
-              className="max-h-80 overflow-auto whitespace-pre-wrap rounded-lg bg-gray-900 p-4 text-sm text-gray-100"
+function QuickConnect({ agent }: { agent: Agent }) {
+  const { user } = useAuth();
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [tab, setTab] = useState<"env" | "python" | "curl">("env");
+  const exampleBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:8000";
+  // 部署时设置环境变量 NEXT_PUBLIC_SITE_URL 为实际域名，如 https://agentweb.example.com
+
+  useEffect(() => {
+    if (!user) return;
+    api<{ key: string }>("/api/v1/keys/default")
+      .then((data) => setApiKey(data.key))
+      .catch(() => setApiKey(null));
+  }, [user]);
+
+  const keyDisplay = apiKey || "{your_api_key}";
+
+  const configs: Record<string, string> = {
+    env: [
+      `OPENAI_BASE_URL=${exampleBaseUrl}/v1`,
+      `OPENAI_API_KEY=${keyDisplay}`,
+      `OPENAI_MODEL=${agent.name}`,
+    ].join("\n"),
+    python: [
+      `from openai import OpenAI`,
+      ``,
+      `client = OpenAI(`,
+      `    base_url="${exampleBaseUrl}/v1",`,
+      `    api_key="${keyDisplay}",`,
+      `)`,
+      `resp = client.chat.completions.create(`,
+      `    model="${agent.name}",`,
+      `    messages=[{"role": "user", "content": "你好"}],`,
+      `)`,
+      `print(resp.choices[0].message.content)`,
+    ].join("\n"),
+    curl: [
+      `curl ${exampleBaseUrl}/v1/chat/completions \\`,
+      `  -H "Authorization: Bearer ${keyDisplay}" \\`,
+      `  -H "Content-Type: application/json" \\`,
+      `  -d '{"model":"${agent.name}","messages":[{"role":"user","content":"你好"}]}'`,
+    ].join("\n"),
+  };
+
+  return (
+    <Card>
+      <CardContent className="pt-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold">快速接入</span>
+          <button
+            className="text-gray-400 hover:text-gray-600"
+            onClick={() => {
+              navigator.clipboard.writeText(configs[tab]);
+              toast.success("已复制");
+            }}
+          >
+            <Copy className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="flex gap-1 rounded-md bg-gray-100 p-0.5">
+          {([["env", ".env"], ["python", "Python"], ["curl", "cURL"]] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`flex-1 rounded px-2 py-1 text-xs transition-colors ${
+                tab === key ? "bg-white font-medium text-gray-900 shadow-sm" : "text-gray-500"
+              }`}
             >
-              {response}
-            </pre>
-          </div>
+              {label}
+            </button>
+          ))}
+        </div>
+        <pre className="overflow-x-auto rounded-lg bg-gray-900 p-3 text-xs leading-relaxed text-gray-100">
+          {configs[tab]}
+        </pre>
+        {!user && (
+          <p className="text-xs text-gray-400">
+            <Link href={`/login?redirect=/agents/${agent.id}`} className="text-blue-600 hover:underline">
+              登录
+            </Link>
+            {" "}后自动填充你的 API Key
+          </p>
+        )}
+        {user && apiKey && (
+          <p className="text-xs text-green-600">API Key 已自动填充，复制即可使用</p>
         )}
       </CardContent>
     </Card>
@@ -154,8 +404,6 @@ function Playground({ agentId }: { agentId: string }) {
 
 export default function AgentDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const { user } = useAuth();
   const [agent, setAgent] = useState<Agent | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -180,47 +428,6 @@ export default function AgentDetailPage() {
       <div className="py-20 text-center text-gray-400">Agent 不存在或已下架</div>
     );
   }
-
-  const baseUrl = API_BASE;
-  const curlExample = [
-    `curl -X POST ${baseUrl}/api/v1/agent/${agent.id}/invoke \\`,
-    `  -H "Authorization: Bearer {your_api_key}" \\`,
-    `  -H "Content-Type: application/json" \\`,
-    `  -d '{`,
-    `    "message": "你好",`,
-    `    "stream": false`,
-    `  }'`,
-  ].join("\n");
-
-  const pythonExample = [
-    `import requests`,
-    ``,
-    `resp = requests.post(`,
-    `    "${baseUrl}/api/v1/agent/${agent.id}/invoke",`,
-    `    headers={"Authorization": "Bearer {your_api_key}"},`,
-    `    json={"message": "你好", "stream": False}`,
-    `)`,
-    `print(resp.json())`,
-  ].join("\n");
-
-  const jsExample = [
-    `const resp = await fetch(`,
-    `  "${baseUrl}/api/v1/agent/${agent.id}/invoke",`,
-    `  {`,
-    `    method: "POST",`,
-    `    headers: {`,
-    `      "Authorization": "Bearer {your_api_key}",`,
-    `      "Content-Type": "application/json",`,
-    `    },`,
-    `    body: JSON.stringify({`,
-    `      message: "你好",`,
-    `      stream: false,`,
-    `    }),`,
-    `  }`,
-    `);`,
-    `const data = await resp.json();`,
-    `console.log(data);`,
-  ].join("\n");
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -296,35 +503,6 @@ export default function AgentDetailPage() {
 
           {/* Playground */}
           <Playground agentId={agent.id} />
-
-          <Separator />
-
-          {/* Code Examples */}
-          <div>
-            <h2 className="mb-4 text-lg font-semibold">调用示例</h2>
-            <Tabs defaultValue="curl">
-              <TabsList>
-                <TabsTrigger value="curl">cURL</TabsTrigger>
-                <TabsTrigger value="python">Python</TabsTrigger>
-                <TabsTrigger value="javascript">JavaScript</TabsTrigger>
-              </TabsList>
-              <TabsContent value="curl">
-                <pre className="overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100">
-                  {curlExample}
-                </pre>
-              </TabsContent>
-              <TabsContent value="python">
-                <pre className="overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100">
-                  {pythonExample}
-                </pre>
-              </TabsContent>
-              <TabsContent value="javascript">
-                <pre className="overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100">
-                  {jsExample}
-                </pre>
-              </TabsContent>
-            </Tabs>
-          </div>
         </div>
 
         {/* Sidebar */}
@@ -337,20 +515,10 @@ export default function AgentDetailPage() {
                 </p>
                 <p className="mt-1 text-sm text-gray-400">/ 百万 tokens</p>
               </div>
-              <Button
-                className="mt-6 w-full"
-                onClick={() => {
-                  if (!user) {
-                    router.push(`/login?redirect=/agents/${agent.id}`);
-                  } else {
-                    router.push("/console/keys");
-                  }
-                }}
-              >
-                开始使用
-              </Button>
             </CardContent>
           </Card>
+
+          <QuickConnect agent={agent} />
 
           <Card>
             <CardContent className="pt-6 space-y-4">
