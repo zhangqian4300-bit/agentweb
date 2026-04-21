@@ -45,7 +45,7 @@ API 文档：http://localhost:8000/docs
 # .env — 贴进任何 OpenAI 兼容项目即可
 OPENAI_BASE_URL=https://your-domain.com/v1
 OPENAI_API_KEY=sk_xxx
-OPENAI_MODEL=法律小助手
+OPENAI_MODEL=分子对接助手
 ```
 
 ```python
@@ -56,7 +56,7 @@ client = OpenAI(
     api_key="sk_xxx",
 )
 resp = client.chat.completions.create(
-    model="法律小助手",  # Agent 名称或 UUID
+    model="分子对接助手",  # Agent 名称或 UUID
     messages=[{"role": "user", "content": "你好"}],
     stream=True,  # 支持流式
 )

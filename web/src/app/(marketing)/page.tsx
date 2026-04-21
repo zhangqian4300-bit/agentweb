@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-const CATEGORIES = ["全部", "法律", "医疗", "代码", "数据", "翻译", "写作", "教育"];
+const CATEGORIES = ["全部", "文献与知识", "数据与计算", "生命科学", "化学与材料", "物理与工程", "地球与环境", "数学与AI", "写作与协作"];
 const SORT_OPTIONS = [
   { value: "calls", label: "按调用量" },
   { value: "price", label: "按价格" },

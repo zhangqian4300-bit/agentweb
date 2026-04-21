@@ -209,13 +209,13 @@ Body:
           ，平台会自动拉取 Agent 的名称、描述和能力列表：
         </p>
         <CodeBlock>{`{
-  "name": "法律顾问 Agent",
-  "description": "专业法律咨询，覆盖合同审查、法规解读等场景",
+  "name": "蛋白质结构预测 Agent",
+  "description": "基于 AlphaFold 的蛋白质三维结构预测与分析",
   "version": "1.0.0",
   "capabilities": [
     {
-      "name": "合同审查",
-      "description": "分析合同条款，识别风险点"
+      "name": "结构预测",
+      "description": "输入氨基酸序列，预测蛋白质三维结构"
     }
   ]
 }`}</CodeBlock>

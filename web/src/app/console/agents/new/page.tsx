@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-const CATEGORIES = ["法律", "医疗", "代码", "数据", "翻译", "写作", "教育", "其他"];
+const CATEGORIES = ["文献与知识", "数据与计算", "生命科学", "化学与材料", "物理与工程", "地球与环境", "数学与AI", "写作与协作", "其他"];
 
 export default function CreateAgentPage() {
   const router = useRouter();

@@ -21,16 +21,17 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-const CATEGORIES = ["法律", "医疗", "代码", "数据", "翻译", "写作", "教育", "其他"];
+const CATEGORIES = ["文献与知识", "数据与计算", "生命科学", "化学与材料", "物理与工程", "地球与环境", "数学与AI", "写作与协作", "其他"];
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
-  "法律": ["法律", "合同", "律师", "法规", "法院", "诉讼", "legal", "law", "contract"],
-  "医疗": ["医疗", "医生", "诊断", "健康", "病", "药", "medical", "health", "doctor"],
-  "代码": ["代码", "编程", "开发", "code", "program", "debug", "software", "api", "sql"],
-  "数据": ["数据", "分析", "统计", "报表", "data", "analytics", "excel", "csv"],
-  "翻译": ["翻译", "translate", "语言", "language", "英文", "中文", "多语"],
-  "写作": ["写作", "文案", "内容", "write", "copy", "文章", "报告", "摘要"],
-  "教育": ["教育", "学习", "教学", "考试", "知识", "education", "learn", "tutor"],
+  "文献与知识": ["文献", "论文", "综述", "review", "paper", "literature", "citation", "知识图谱", "knowledge", "search", "retrieval", "pubmed", "arxiv"],
+  "数据与计算": ["数据", "计算", "统计", "分析", "可视化", "data", "compute", "analysis", "statistics", "visualization", "hpc", "pipeline", "workflow"],
+  "生命科学": ["蛋白质", "基因", "生物", "药物", "细胞", "protein", "gene", "bio", "drug", "cell", "genomics", "alphafold", "sequence", "docking"],
+  "化学与材料": ["化学", "材料", "合成", "催化", "chemistry", "material", "molecule", "synthesis", "catalyst", "polymer", "crystal"],
+  "物理与工程": ["物理", "仿真", "模拟", "信号", "力学", "physics", "simulation", "fem", "cfd", "signal", "mechanics", "quantum", "optics"],
+  "地球与环境": ["气象", "气候", "遥感", "地质", "环境", "ocean", "climate", "remote sensing", "gis", "ecology", "weather", "earth"],
+  "数学与AI": ["数学", "公式", "模型", "机器学习", "math", "formula", "model", "ml", "deep learning", "optimization", "neural"],
+  "写作与协作": ["写作", "润色", "论文写作", "审稿", "基金", "writing", "polish", "manuscript", "review response", "grant", "abstract", "报告"],
 };
 
 function suggestCategory(text: string): string {
