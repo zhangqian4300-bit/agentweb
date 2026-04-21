@@ -18,6 +18,9 @@ async def chat_completion(
     model: Optional[str] = None,
     temperature: float = 0.7,
 ) -> str:
+    if not settings.llm_api_key:
+        raise RuntimeError("LLM_API_KEY is not configured")
+
     url = f"{settings.llm_api_base.rstrip('/')}/chat/completions"
     headers = {
         "Content-Type": "application/json",
