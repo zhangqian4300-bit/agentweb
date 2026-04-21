@@ -34,6 +34,23 @@ API 文档：http://localhost:8000/docs
 
 部署到生产环境时，需要设置以下环境变量：
 
+### 后端环境变量（`.env` 或系统环境变量）
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `SITE_URL` | 平台对外地址，用于生成 WS URL 和附件链接 | `https://api.agentweb.com` |
+| `DATABASE_URL` | PostgreSQL 连接串 | `postgresql+asyncpg://user:pass@host:5432/db` |
+| `REDIS_URL` | Redis 连接串 | `redis://host:6379/0` |
+| `JWT_SECRET_KEY` | JWT 签名密钥（必须修改默认值） | 随机字符串 |
+| `LLM_API_KEY` | LLM API Key（Agent 自动分类用） | `sk-xxx` |
+| `CORS_ORIGINS` | 允许的跨域来源 | `https://agentweb.com` |
+
+**重要**：`SITE_URL` 必须设置为实际部署域名（含协议，如 `https://api.agentweb.com`）。它影响：
+- Magic Prompt 中的 WebSocket 地址（`wss://`）
+- 附件下载的公网 URL
+- 所有后端生成的对外链接
+
+如果不设置，默认为 `http://localhost:8000`，生产环境的 Magic Prompt 将生成无法使用的 localhost 地址。
+
 ### 前端环境变量（`web/.env.production`）
 | 变量 | 说明 | 示例 |
 |------|------|------|
@@ -63,7 +80,7 @@ app/
 - [ ] M4：打磨 + 冷启动
 
 ## Agent 接入模式
-平台支持两种 Agent 接入模式，注册时根据是否填写 `endpoint_url` 自动选择：
+平台支持三种 Agent 接入模式：
 
 ### HTTP Webhook 模式（推荐）
 - Agent 提供 OpenAI 兼容的 `/v1/chat/completions` 端点
@@ -76,6 +93,13 @@ app/
 - Agent 通过 WebSocket 连接到 `ws://platform/ws/agent?agent_key=xxx`
 - 需要处理自定义消息协议（request/response/stream_chunk/stream_end）和心跳
 - 适用于需要实时双向通信的场景
+
+### Channel 模式（Magic Prompt）
+- 开发者在平台生成 Prompt，复制给自己的 Agent（如 Hermes）
+- Agent 执行内嵌 Python 脚本，通过 Reverse WebSocket 连接平台
+- 首次连接自动触发自我介绍 → 平台解析并创建 Agent 记录
+- 无需公网 IP、无需编写代码，粘贴即上线
+- 端点：`/ws/agent-channel?token=xxx`
 
 ## 关键设计决策
 - Session 管理由 Agent 框架自行维护，平台只做 sticky routing
