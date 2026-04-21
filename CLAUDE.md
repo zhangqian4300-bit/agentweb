@@ -32,32 +32,82 @@ API 文档：http://localhost:8000/docs
 
 ## 部署配置
 
-部署到生产环境时，需要设置以下环境变量：
+部署到生产环境时，**必须正确设置环境变量**，否则前端 API 请求会打到 localhost 导致功能不可用。
 
-### 后端环境变量（`.env` 或系统环境变量）
-| 变量 | 说明 | 示例 |
-|------|------|------|
-| `SITE_URL` | 平台对外地址，用于生成 WS URL 和附件链接 | `https://api.agentweb.com` |
-| `DATABASE_URL` | PostgreSQL 连接串 | `postgresql+asyncpg://user:pass@host:5432/db` |
-| `REDIS_URL` | Redis 连接串 | `redis://host:6379/0` |
-| `JWT_SECRET_KEY` | JWT 签名密钥（必须修改默认值） | 随机字符串 |
-| `LLM_API_KEY` | LLM API Key（Agent 自动分类用） | `sk-xxx` |
-| `CORS_ORIGINS` | 允许的跨域来源 | `https://agentweb.com` |
+假设部署地址为 `http://YOUR_SERVER_IP:3000`（前端）和 `http://YOUR_SERVER_IP:8000`（后端），按以下步骤配置：
 
-**重要**：`SITE_URL` 必须设置为实际部署域名（含协议，如 `https://api.agentweb.com`）。它影响：
-- Magic Prompt 中的 WebSocket 地址（`wss://`）
-- 附件下载的公网 URL
-- 所有后端生成的对外链接
+### 第一步：后端环境变量
 
-如果不设置，默认为 `http://localhost:8000`，生产环境的 Magic Prompt 将生成无法使用的 localhost 地址。
+创建项目根目录下的 `.env` 文件（已在 `.gitignore` 中，不会提交）：
 
-### 前端环境变量（`web/.env.production`）
-| 变量 | 说明 | 示例 |
-|------|------|------|
-| `NEXT_PUBLIC_API_URL` | 后端 API 地址 | `https://api.agentweb.com` |
-| `NEXT_PUBLIC_SITE_URL` | 平台对外访问地址，用于生成调用示例中的 base_url | `https://api.agentweb.com` |
+```bash
+# .env — 后端配置
+DATABASE_URL=postgresql+asyncpg://agentweb:agentweb@localhost:5433/agentweb
+REDIS_URL=redis://localhost:6379/0
+JWT_SECRET_KEY=替换为随机字符串
+CORS_ORIGINS=http://YOUR_SERVER_IP:3000
+SITE_URL=http://YOUR_SERVER_IP:3000
+LLM_API_KEY=你的通义千问API Key
+LLM_API_BASE=https://dashscope.aliyuncs.com/compatible-mode/v1
+LLM_MODEL=qwen-plus
+```
 
-**重要**：`NEXT_PUBLIC_SITE_URL` 必须设置为实际部署域名。它会出现在 Agent 详情页的「快速接入」配置和用户手册的代码示例中。如果不设置，本地开发默认为 `http://localhost:8000`。
+各变量说明：
+
+| 变量 | 必须 | 说明 | 不设置的后果 |
+|------|------|------|-------------|
+| `SITE_URL` | **是** | 平台对外访问地址（含协议和端口） | Magic Prompt 生成 `ws://localhost:8000`，Agent 无法连接 |
+| `DATABASE_URL` | **是** | PostgreSQL 连接串 | 无法启动 |
+| `REDIS_URL` | **是** | Redis 连接串 | 无法启动 |
+| `JWT_SECRET_KEY` | **是** | JWT 签名密钥 | 使用不安全的默认值 |
+| `LLM_API_KEY` | **是** | 通义千问 API Key（[DashScope 申请](https://dashscope.console.aliyun.com/)） | Agent 自动分类、测试评分、定价建议全部报错 |
+| `CORS_ORIGINS` | **是** | 允许的跨域来源，设为前端地址 | 浏览器跨域请求被拦截 |
+| `LLM_API_BASE` | 否 | LLM API 地址 | 默认通义千问 |
+| `LLM_MODEL` | 否 | LLM 模型 | 默认 qwen-plus |
+
+### 第二步：前端环境变量
+
+创建 `web/.env`（开发模式）或 `web/.env.production`（生产构建）：
+
+```bash
+# web/.env — 前端配置
+NEXT_PUBLIC_API_URL=http://YOUR_SERVER_IP:3000
+NEXT_PUBLIC_SITE_URL=http://YOUR_SERVER_IP:3000
+```
+
+| 变量 | 必须 | 说明 | 不设置的后果 |
+|------|------|------|-------------|
+| `NEXT_PUBLIC_API_URL` | **是** | 浏览器中 JS 请求的后端地址 | 前端所有 API 请求打到 `localhost:8000`，**整个网站不可用** |
+| `NEXT_PUBLIC_SITE_URL` | **是** | 用于生成代码示例中的 base_url | 用户手册和快速接入示例显示 localhost |
+
+**注意**：
+- `NEXT_PUBLIC_` 前缀的变量会被编译进前端 JS，修改后需要**重启前端**才生效
+- 如果用 `npm run dev` 运行，读 `web/.env`；如果用 `npm run build && npm start`，读 `web/.env.production`
+- `NEXT_PUBLIC_API_URL` 和 `SITE_URL` 通常设为相同值（前端通过 Next.js 反向代理转发 `/api` 请求到后端）
+
+### 第三步：启动服务
+
+```bash
+# 1. 启动数据库
+docker-compose up -d
+
+# 2. 运行迁移
+python3 -m alembic upgrade head
+
+# 3. 启动后端
+python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# 4. 启动前端
+cd web && npm run dev
+```
+
+### 快速检查清单
+
+部署后依次验证：
+1. `curl http://YOUR_SERVER_IP:3000/api/v1/agents` — 应返回 JSON（不是 HTML 404）
+2. 浏览器打开 `http://YOUR_SERVER_IP:3000` — 首页正常加载
+3. 注册账号 → 上架页面 → 选择端点 URL 模式 → 输入 Agent 地址 → 连接并探测
+4. 如果 Agent 分类/测试评分报错，检查 `LLM_API_KEY` 是否设置
 
 ## 项目结构
 ```
