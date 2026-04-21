@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const API_BASE = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://your-domain.com";
 
 function CodeBlock({ children }: { children: string }) {
   return (
