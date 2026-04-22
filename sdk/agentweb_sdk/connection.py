@@ -37,17 +37,60 @@ class Connection:
         except Exception as e:
             raise AgentWebConnectionError(f"Failed to connect: {e}") from e
 
-        raw = await self._ws.recv()
-        msg = json.loads(raw)
+        while True:
+            raw = await self._ws.recv()
+            msg = json.loads(raw)
 
-        if msg.get("type") == "error":
-            await self._ws.close()
-            raise AuthenticationError(msg.get("detail", "Authentication failed"))
+            if msg.get("type") == "error":
+                await self._ws.close()
+                raise AuthenticationError(msg.get("detail", "Authentication failed"))
 
-        if msg.get("type") == "connected":
-            self._connected_agent_ids = msg.get("agent_ids", [])
-            self._reconnect_delay = 1.0
-            logger.info(f"Connected, agents: {self._connected_agent_ids}")
+            if msg.get("type") == "connected":
+                self._connected_agent_ids = msg.get("agent_ids", [])
+                self._reconnect_delay = 1.0
+                logger.info(f"Connected, agents: {self._connected_agent_ids}")
+                break
+
+            if msg.get("type") == "execute":
+                await self._handle_execute(msg)
+
+    async def _handle_execute(self, data: Dict[str, Any]) -> None:
+        request_id = data.get("request_id", "")
+        message = data.get("message", "")
+
+        if self._on_request:
+            try:
+                result = {"content": ""}
+
+                async def capture_send(resp: dict) -> None:
+                    nonlocal result
+                    result = resp
+
+                await self._on_request(
+                    request_id=request_id,
+                    session_id="",
+                    message=message,
+                    metadata={},
+                    stream=False,
+                    send=capture_send,
+                )
+                content = result.get("content", "")
+            except Exception as e:
+                logger.error(f"Execute handler error: {e}")
+                content = str(e)
+        else:
+            content = json.dumps({
+                "name": "Agent",
+                "description": "An agent connected via AgentWeb SDK",
+                "version": "1.0.0",
+                "capabilities": [],
+            })
+
+        await self._send({
+            "type": "output",
+            "request_id": request_id,
+            "content": content,
+        })
 
     async def run_forever(self) -> None:
         self._running = True
@@ -74,6 +117,8 @@ class Connection:
             elif msg_type == "request":
                 if self._on_request:
                     asyncio.create_task(self._handle_request(data))
+            elif msg_type == "execute":
+                asyncio.create_task(self._handle_execute(data))
             else:
                 logger.debug(f"Unhandled message type: {msg_type}")
 

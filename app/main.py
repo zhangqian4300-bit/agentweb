@@ -9,7 +9,6 @@ from app.api.v1.openai_compat import router as openai_compat_router
 from app.api.v1.router import router as v1_router
 from app.config import settings
 from app.core.database import engine
-from app.ws.agent_channel import router as agent_channel_router
 from app.ws.gateway import router as ws_router
 from app.ws.chat_gateway import router as chat_ws_router
 
@@ -39,7 +38,6 @@ app.include_router(v1_router)
 app.include_router(openai_compat_router)
 app.include_router(ws_router)
 app.include_router(chat_ws_router)
-app.include_router(agent_channel_router)
 
 os.makedirs(settings.upload_dir, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")

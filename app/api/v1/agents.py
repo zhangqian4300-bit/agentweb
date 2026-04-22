@@ -77,8 +77,8 @@ async def _fetch_via_self_intro(
         "messages": [{"role": "user", "content": _SELF_INTRO_PROMPT}],
         "stream": False,
     }
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        resp = await client.post(url, json=payload, headers=headers, timeout=30.0)
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        resp = await client.post(url, json=payload, headers=headers, timeout=120.0)
         resp.raise_for_status()
         data = resp.json()
 
@@ -180,8 +180,8 @@ async def probe_agent(data: ProbeRequest) -> Dict[str, Any]:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(url, json=payload, headers=headers, timeout=30.0)
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            resp = await client.post(url, json=payload, headers=headers, timeout=120.0)
             resp.raise_for_status()
             raw = resp.json()
 
@@ -220,7 +220,7 @@ async def run_test(data: RunTestRequest) -> Dict[str, Any]:
     start = time.monotonic()
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.post(url, json=payload, headers=headers, timeout=60.0)
+            resp = await client.post(url, json=payload, headers=headers, timeout=180.0)
             resp.raise_for_status()
             raw = resp.json()
         elapsed_ms = int((time.monotonic() - start) * 1000)

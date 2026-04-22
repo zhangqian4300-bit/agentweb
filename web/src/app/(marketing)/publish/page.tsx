@@ -76,14 +76,14 @@ interface PricingSuggestion {
   reasoning: string;
 }
 
-type ConnectMode = "endpoint" | "prompt";
+type ConnectMode = "sdk" | "endpoint";
 
 export default function PublishPage() {
   const router = useRouter();
   const { user, login, register } = useAuth();
 
   const [step, setStep] = useState(1);
-  const [connectMode, setConnectMode] = useState<ConnectMode>("prompt");
+  const [connectMode, setConnectMode] = useState<ConnectMode>("sdk");
 
   // Step 1: Connect (endpoint mode)
   const [endpointUrl, setEndpointUrl] = useState("");
@@ -92,11 +92,11 @@ export default function PublishPage() {
   const [fetching, setFetching] = useState(false);
   const [fetchError, setFetchError] = useState("");
 
-  // Step 1: Connect (prompt mode)
-  const [promptText, setPromptText] = useState("");
-  const [promptKey, setPromptKey] = useState("");
-  const [promptLoading, setPromptLoading] = useState(false);
-  const [promptCopied, setPromptCopied] = useState(false);
+  // Step 1: Connect (SDK mode)
+  const [sdkSnippet, setSdkSnippet] = useState("");
+  const [sdkAgentKey, setSdkAgentKey] = useState("");
+  const [sdkLoading, setSdkLoading] = useState(false);
+  const [sdkCopied, setSdkCopied] = useState(false);
   const [waitingAgent, setWaitingAgent] = useState(false);
   const [pollTimer, setPollTimer] = useState<ReturnType<typeof setInterval> | null>(null);
 
@@ -132,30 +132,30 @@ export default function PublishPage() {
 
   const [publishing, setPublishing] = useState(false);
 
-  // Prompt mode: generate prompt
-  const handleGeneratePrompt = useCallback(async () => {
+  // SDK mode: generate snippet
+  const handleGenerateSDK = useCallback(async () => {
     if (!user) {
       setShowAuth(true);
       return;
     }
-    setPromptLoading(true);
+    setSdkLoading(true);
     try {
-      const result = await api<{ prompt: string; token: string }>("/api/v1/agent-hub/prompt");
-      setPromptText(result.prompt);
-      setPromptKey(result.token);
+      const result = await api<{ snippet: string; agent_key: string; platform_url: string }>("/api/v1/agent-hub/sdk-snippet");
+      setSdkSnippet(result.snippet);
+      setSdkAgentKey(result.agent_key);
     } catch (err) {
       toast.error(err instanceof ApiError ? err.detail : "生成失败");
     } finally {
-      setPromptLoading(false);
+      setSdkLoading(false);
     }
   }, [user]);
 
-  const handleCopyPrompt = useCallback(() => {
-    navigator.clipboard.writeText(promptText);
-    setPromptCopied(true);
+  const handleCopySnippet = useCallback(() => {
+    navigator.clipboard.writeText(sdkSnippet);
+    setSdkCopied(true);
     toast.success("已复制到剪贴板");
-    setTimeout(() => setPromptCopied(false), 2000);
-  }, [promptText]);
+    setTimeout(() => setSdkCopied(false), 2000);
+  }, [sdkSnippet]);
 
   const startWaitingAgent = useCallback(() => {
     setWaitingAgent(true);
@@ -194,7 +194,7 @@ export default function PublishPage() {
       }
     }, 3000);
     setPollTimer(timer);
-  }, [promptKey]);
+  }, [sdkAgentKey]);
 
   useEffect(() => {
     return () => {
@@ -412,20 +412,26 @@ export default function PublishPage() {
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold">上架你的 Agent</h1>
         <p className="mt-2 text-gray-500">
-          {connectMode === "prompt"
-            ? "复制 Prompt 给你的 Agent → 自动注册 → 确认上架"
+          {connectMode === "sdk"
+            ? "安装 SDK → 运行连接 → 自动注册 → 确认上架"
             : "粘贴端点 URL → 能力探测 → 质量测试 → 智能定价"}
         </p>
       </div>
 
       {/* Progress Steps */}
       <div className="mb-8 flex items-center justify-between">
-        {[
-          { n: 1, label: "连接" },
-          { n: 2, label: "探测" },
-          { n: 3, label: "测试" },
-          { n: 4, label: "定价发布" },
-        ].map(({ n, label }) => (
+        {(connectMode === "sdk"
+          ? [
+              { n: 1, label: "连接" },
+              { n: 4, label: "确认上架" },
+            ]
+          : [
+              { n: 1, label: "连接" },
+              { n: 2, label: "探测" },
+              { n: 3, label: "测试" },
+              { n: 4, label: "定价发布" },
+            ]
+        ).map(({ n, label }, idx, arr) => (
           <div key={n} className="flex items-center gap-2">
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors ${
@@ -434,12 +440,12 @@ export default function PublishPage() {
                   : "bg-gray-200 text-gray-400"
               }`}
             >
-              {step > n ? "✓" : n}
+              {step > n ? "✓" : idx + 1}
             </div>
             <span className={`text-sm ${step >= n ? "text-gray-900" : "text-gray-400"}`}>
               {label}
             </span>
-            {n < 4 && <div className={`mx-2 h-px w-8 ${step > n ? "bg-blue-600" : "bg-gray-200"}`} />}
+            {idx < arr.length - 1 && <div className={`mx-2 h-px w-8 ${step > n ? "bg-blue-600" : "bg-gray-200"}`} />}
           </div>
         ))}
       </div>
@@ -450,14 +456,14 @@ export default function PublishPage() {
           {/* Mode Switcher */}
           <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1">
             <button
-              onClick={() => setConnectMode("prompt")}
+              onClick={() => setConnectMode("sdk")}
               className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
-                connectMode === "prompt"
+                connectMode === "sdk"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              Prompt 接入（推荐）
+              SDK 接入（推荐）
             </button>
             <button
               onClick={() => setConnectMode("endpoint")}
@@ -471,55 +477,55 @@ export default function PublishPage() {
             </button>
           </div>
 
-          {/* Prompt Mode */}
-          {connectMode === "prompt" && (
+          {/* SDK Mode */}
+          {connectMode === "sdk" && (
             <Card>
               <CardContent className="pt-6 space-y-4">
-                {!promptText ? (
+                {!sdkSnippet ? (
                   <>
                     <div className="text-center py-4">
                       <p className="text-sm text-gray-600 mb-1">
-                        无需公网 IP、无需写代码
+                        安装 SDK，一行代码连接平台
                       </p>
                       <p className="text-xs text-gray-400">
-                        生成一段接入 Prompt，复制给你的 Agent，它会自动连接平台并自我介绍
+                        生成专属 agent_key 和接入代码，运行后 Agent 自动连接并完成注册
                       </p>
                     </div>
                     <Button
-                      onClick={handleGeneratePrompt}
-                      disabled={promptLoading}
+                      onClick={handleGenerateSDK}
+                      disabled={sdkLoading}
                       className="w-full h-12 text-base"
                     >
-                      {promptLoading ? "生成中..." : "生成接入 Prompt"}
+                      {sdkLoading ? "生成中..." : "生成 SDK 接入代码"}
                     </Button>
                   </>
                 ) : !waitingAgent ? (
                   <>
                     <div className="space-y-2">
-                      <Label>接入 Prompt</Label>
+                      <Label>接入代码</Label>
                       <div className="relative">
-                        <pre className="whitespace-pre-wrap rounded-lg bg-gray-50 border p-4 text-xs text-gray-700 max-h-64 overflow-y-auto">
-                          {promptText}
+                        <pre className="whitespace-pre-wrap rounded-lg bg-gray-50 border p-4 text-xs text-gray-700 max-h-64 overflow-y-auto font-mono">
+                          {sdkSnippet}
                         </pre>
                       </div>
                     </div>
                     <div className="flex gap-2">
                       <Button
-                        onClick={handleCopyPrompt}
+                        onClick={handleCopySnippet}
                         variant="outline"
                         className="flex-1"
                       >
-                        {promptCopied ? "已复制" : "复制 Prompt"}
+                        {sdkCopied ? "已复制" : "复制代码"}
                       </Button>
                       <Button
                         onClick={startWaitingAgent}
                         className="flex-1"
                       >
-                        我已粘贴给 Agent
+                        我已运行 SDK
                       </Button>
                     </div>
                     <p className="text-xs text-gray-400 text-center">
-                      复制上面的内容，粘贴给你的 AI Agent 执行
+                      复制代码到你的项目中运行，Agent 会自动连接平台
                     </p>
                   </>
                 ) : (
@@ -527,7 +533,7 @@ export default function PublishPage() {
                     <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
                     <p className="mt-4 text-sm text-gray-600">等待 Agent 连接...</p>
                     <p className="mt-1 text-xs text-gray-400">
-                      Agent 会先自我介绍，平台自动解析信息
+                      Agent 连接后会自动完成自我介绍和注册
                     </p>
                   </div>
                 )}
@@ -581,8 +587,8 @@ export default function PublishPage() {
             </Card>
           )}
 
-          {/* Auth (for prompt mode, need login first) */}
-          {connectMode === "prompt" && showAuth && !user && (
+          {/* Auth (for SDK mode, need login first) */}
+          {connectMode === "sdk" && showAuth && !user && (
             <Card>
               <CardContent className="pt-6 space-y-4">
                 <div className="flex gap-2 text-sm">
@@ -828,41 +834,43 @@ export default function PublishPage() {
       {/* Step 4: Pricing & Publish */}
       {step === 4 && (
         <div className="space-y-6">
-          {/* Test summary */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-2xl font-bold">{completedTests}</p>
-                  <p className="text-xs text-gray-400">测试用例</p>
+          {/* Test summary (only for endpoint mode) */}
+          {connectMode === "endpoint" && completedTests > 0 && (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-2xl font-bold">{completedTests}</p>
+                    <p className="text-xs text-gray-400">测试用例</p>
+                  </div>
+                  <div>
+                    <p className={`text-2xl font-bold ${
+                      avgGrade.startsWith("A") ? "text-green-600" :
+                      avgGrade.startsWith("B") ? "text-blue-600" :
+                      avgGrade.startsWith("C") ? "text-yellow-600" : "text-red-600"
+                    }`}>{avgGrade}</p>
+                    <p className="text-xs text-gray-400">综合评分</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {testResults.filter((r) => r && (r.grade === "A" || r.grade === "B")).length}/{completedTests}
+                    </p>
+                    <p className="text-xs text-gray-400">通过率</p>
+                  </div>
                 </div>
-                <div>
-                  <p className={`text-2xl font-bold ${
-                    avgGrade.startsWith("A") ? "text-green-600" :
-                    avgGrade.startsWith("B") ? "text-blue-600" :
-                    avgGrade.startsWith("C") ? "text-yellow-600" : "text-red-600"
-                  }`}>{avgGrade}</p>
-                  <p className="text-xs text-gray-400">综合评分</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">
-                    {testResults.filter((r) => r && (r.grade === "A" || r.grade === "B")).length}/{completedTests}
-                  </p>
-                  <p className="text-xs text-gray-400">通过率</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Pricing suggestion */}
-          {loadingPricing ? (
+          {/* Pricing suggestion (only for endpoint mode) */}
+          {connectMode === "endpoint" && loadingPricing ? (
             <Card>
               <CardContent className="py-8 flex items-center justify-center">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
                 <span className="ml-3 text-sm text-gray-500">正在分析定价...</span>
               </CardContent>
             </Card>
-          ) : pricingSuggestion && (
+          ) : connectMode === "endpoint" && pricingSuggestion && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">定价建议</CardTitle>
