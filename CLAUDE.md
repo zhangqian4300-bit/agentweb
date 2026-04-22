@@ -34,9 +34,23 @@ API 文档：http://localhost:8000/docs
 
 部署到生产环境时，**必须正确设置环境变量**，否则前端 API 请求会打到 localhost 导致功能不可用。
 
+### 推荐：一键配置（避免 localhost 错误）
+
+```bash
+# 只需传入公网地址，自动生成 .env 和 web/.env
+./setup-env.sh http://YOUR_SERVER_IP:3000 你的LLM_API_KEY
+
+# 或者不传 LLM_API_KEY，稍后手动编辑 .env 填写
+./setup-env.sh http://YOUR_SERVER_IP:3000
+```
+
+脚本会自动生成正确的后端 `.env` 和前端 `web/.env`，所有地址相关变量统一填好，不会出现 localhost。
+
+### 手动配置（如需自定义）
+
 假设部署地址为 `http://YOUR_SERVER_IP:3000`（前端）和 `http://YOUR_SERVER_IP:8000`（后端），按以下步骤配置：
 
-### 第一步：后端环境变量
+#### 第一步：后端环境变量
 
 创建项目根目录下的 `.env` 文件（已在 `.gitignore` 中，不会提交）：
 
@@ -65,7 +79,7 @@ LLM_MODEL=qwen-plus
 | `LLM_API_BASE` | 否 | LLM API 地址 | 默认通义千问 |
 | `LLM_MODEL` | 否 | LLM 模型 | 默认 qwen-plus |
 
-### 第二步：前端环境变量
+#### 第二步：前端环境变量
 
 创建 `web/.env`（开发模式）或 `web/.env.production`（生产构建）：
 
@@ -85,7 +99,7 @@ NEXT_PUBLIC_SITE_URL=http://YOUR_SERVER_IP:3000
 - 如果用 `npm run dev` 运行，读 `web/.env`；如果用 `npm run build && npm start`，读 `web/.env.production`
 - `NEXT_PUBLIC_API_URL` 和 `SITE_URL` 通常设为相同值（前端通过 Next.js 反向代理转发 `/api` 请求到后端）
 
-### 第三步：启动服务
+### 启动服务
 
 ```bash
 # 1. 启动数据库
@@ -101,7 +115,7 @@ python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 cd web && npm run dev
 ```
 
-### 快速检查清单
+### 检查清单
 
 部署后依次验证：
 1. `curl http://YOUR_SERVER_IP:3000/api/v1/agents` — 应返回 JSON（不是 HTML 404）
