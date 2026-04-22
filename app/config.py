@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     upload_dir: str = "uploads"
     max_upload_size_mb: int = 10
     site_url: str = "http://localhost:8000"
+    backend_url: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

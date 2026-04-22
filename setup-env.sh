@@ -15,6 +15,7 @@ set -euo pipefail
 #  效果：
 #    自动生成 .env（后端）和 web/.env（前端），
 #    所有地址相关变量统一正确填写，不再出现 localhost。
+#    自动推导后端地址（端口 8000），SDK 通过后端直连 WebSocket。
 # ============================================================
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -37,6 +38,12 @@ if [[ ! "$PUBLIC_URL" =~ ^https?:// ]]; then
     echo "错误: 地址必须以 http:// 或 https:// 开头"
     exit 1
 fi
+
+# 从公网地址推导后端地址（替换端口为 8000）
+# http://8.136.40.83:3000 -> http://8.136.40.83:8000
+# https://agentweb.example.com -> https://agentweb.example.com:8000
+HOST_WITH_SCHEME=$(echo "$PUBLIC_URL" | sed 's|:[0-9]*$||')
+BACKEND_URL="${HOST_WITH_SCHEME}:8000"
 
 # 生成随机 JWT 密钥
 JWT_SECRET=$(openssl rand -hex 32 2>/dev/null || python3 -c "import secrets; print(secrets.token_hex(32))")
@@ -74,6 +81,7 @@ JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 PLATFORM_COMMISSION_RATE=0.18
 
 SITE_URL=${PUBLIC_URL}
+BACKEND_URL=${BACKEND_URL}
 CORS_ORIGINS=${PUBLIC_URL}
 
 LLM_API_BASE=https://dashscope.aliyuncs.com/compatible-mode/v1
@@ -98,7 +106,8 @@ echo ""
 echo "========================================="
 echo "  环境配置完成"
 echo "========================================="
-echo "  公网地址:     ${PUBLIC_URL}"
+echo "  前端地址:     ${PUBLIC_URL}"
+echo "  后端地址:     ${BACKEND_URL}"
 echo "  数据库:       ${DB_URL}"
 echo "  Redis:        ${REDIS_URL}"
 if [ -n "$LLM_KEY" ]; then
@@ -112,7 +121,7 @@ echo "下一步:"
 echo "  1. docker-compose up -d"
 echo "  2. python3 -m alembic upgrade head"
 echo "  3. python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000"
-echo "  4. cd web && npm install && npm run dev"
+echo "  4. cd web && npm run build && npm start -- --port ${PUBLIC_URL##*:}"
 if [ -z "$LLM_KEY" ]; then
     echo ""
     echo "  [!] 记得在 .env 中填写 LLM_API_KEY，否则 Agent 分类/测试评分会报错"

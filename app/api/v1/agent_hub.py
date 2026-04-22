@@ -83,7 +83,7 @@ async def sdk_snippet(
     else:
         _, agent_key = await create_api_key(db, user.id, "agent_key", "sdk-default")
 
-    platform_url = settings.site_url.rstrip("/")
+    platform_url = (settings.backend_url or settings.site_url).rstrip("/")
 
     snippet = f"""\
 pip install agentweb-sdk
