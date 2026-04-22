@@ -35,5 +35,11 @@ web/.vercel
 web/tsconfig.tsbuildinfo
 web/next-env.d.ts
 
+# Logs
+logs/
+
+# Uploads
+uploads/
+
 # Claude Code
 .claude/

@@ -99,7 +99,15 @@ NEXT_PUBLIC_SITE_URL=http://YOUR_SERVER_IP:3000
 - 如果用 `npm run dev` 运行，读 `web/.env`；如果用 `npm run build && npm start`，读 `web/.env.production`
 - `NEXT_PUBLIC_API_URL` 和 `SITE_URL` 通常设为相同值（前端通过 Next.js 反向代理转发 `/api` 请求到后端）
 
-### 启动服务
+### 一键部署（推荐）
+
+```bash
+./deploy.sh http://YOUR_SERVER_IP:3000 你的LLM_API_KEY
+```
+
+脚本会自动完成：配置环境变量 → 启动 Docker → 安装依赖 → 数据库迁移 → 构建前端 → 以生产模式启动后端和前端。日志写入 `logs/` 目录。
+
+### 手动启动
 
 ```bash
 # 1. 启动数据库
@@ -111,8 +119,8 @@ python3 -m alembic upgrade head
 # 3. 启动后端
 python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-# 4. 启动前端
-cd web && npm run dev
+# 4. 构建并启动前端（生产模式）
+cd web && npm run build && npm start -- --port 3000
 ```
 
 ### 检查清单
