@@ -22,6 +22,7 @@ async def register_agent(db: AsyncSession, owner_id: uuid.UUID, data: AgentCreat
         existing.category = data.category
         existing.endpoint_url = data.endpoint_url
         existing.endpoint_api_key = data.endpoint_api_key
+        existing.endpoint_protocol = data.endpoint_protocol
         existing.is_listed = True
         if data.endpoint_url:
             existing.status = "online"
@@ -44,6 +45,7 @@ async def create_agent(db: AsyncSession, owner_id: uuid.UUID, data: AgentCreate)
         category=data.category,
         endpoint_url=data.endpoint_url,
         endpoint_api_key=data.endpoint_api_key,
+        endpoint_protocol=data.endpoint_protocol,
         status="online" if data.endpoint_url else "offline",
     )
     db.add(agent)

@@ -93,6 +93,12 @@ async def _handle_chat(ws: WebSocket, data: dict, user, history: list):
                             "request_id": request_id,
                             "content": chunk.get("content", ""),
                         })
+                    elif chunk_type in ("typing", "edit", "tool_progress"):
+                        await ws.send_json({
+                            "type": chunk_type,
+                            "request_id": request_id,
+                            **{k: v for k, v in chunk.items() if k not in ("type", "request_id")},
+                        })
                     elif chunk_type == "stream_end":
                         final_usage = chunk.get("usage", {})
                         input_tokens = final_usage.get("input_tokens", 0)

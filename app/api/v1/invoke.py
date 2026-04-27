@@ -112,6 +112,12 @@ async def _stream_generator(agent_id, request_id, session_id, data, user, agent,
         if chunk_type == "stream_chunk":
             total_content += chunk.get("content", "")
             yield {"event": "chunk", "data": json.dumps({"content": chunk.get("content", "")})}
+        elif chunk_type == "typing":
+            yield {"event": "typing", "data": json.dumps({"status": chunk.get("status", "typing")})}
+        elif chunk_type == "edit":
+            yield {"event": "edit", "data": json.dumps({"text": chunk.get("text", ""), "update_mode": chunk.get("update_mode", "replace")})}
+        elif chunk_type == "tool_progress":
+            yield {"event": "tool_progress", "data": json.dumps({"tool": chunk.get("tool", ""), "emoji": chunk.get("emoji", ""), "label": chunk.get("label", ""), "status": chunk.get("status", "running")})}
         elif chunk_type == "stream_end":
             final_usage = chunk.get("usage", {})
             input_tokens = final_usage.get("input_tokens", 0)

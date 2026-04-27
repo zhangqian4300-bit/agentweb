@@ -249,6 +249,11 @@ async def agent_websocket(websocket: WebSocket, agent_key: str = ""):
                 if request_id:
                     manager.push_stream_chunk(request_id, data)
 
+            elif msg_type in ("typing", "edit", "tool_progress", "send"):
+                request_id = data.get("request_id")
+                if request_id:
+                    manager.push_stream_chunk(request_id, data)
+
     except (WebSocketDisconnect, asyncio.TimeoutError, Exception) as e:
         logger.info(f"Agent connection ended: {e}")
     finally:

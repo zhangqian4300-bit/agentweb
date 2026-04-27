@@ -3,7 +3,12 @@ from typing import AsyncIterator, Optional
 import redis.asyncio as aioredis
 
 from app.core.exceptions import AgentOfflineError, AgentTimeoutError
-from app.services.webhook_service import webhook_invoke, webhook_invoke_stream
+from app.services.webhook_service import (
+    webhook_invoke,
+    webhook_invoke_a2a,
+    webhook_invoke_stream,
+    webhook_invoke_stream_a2a,
+)
 from app.ws.connection_manager import manager
 
 SESSION_TTL = 3600
@@ -28,10 +33,12 @@ async def route_to_agent(
     metadata: dict,
     endpoint_url: Optional[str] = None,
     endpoint_api_key: Optional[str] = None,
+    endpoint_protocol: str = "openai",
     timeout: float = 300,
 ) -> dict:
     if endpoint_url:
-        return await webhook_invoke(
+        invoke_fn = webhook_invoke_a2a if endpoint_protocol == "a2a" else webhook_invoke
+        return await invoke_fn(
             endpoint_url, request_id, session_id, message, metadata,
             endpoint_api_key=endpoint_api_key, timeout=timeout,
         )
@@ -46,10 +53,12 @@ async def route_to_agent_stream(
     metadata: dict,
     endpoint_url: Optional[str] = None,
     endpoint_api_key: Optional[str] = None,
+    endpoint_protocol: str = "openai",
     timeout: float = 300,
 ) -> AsyncIterator[dict]:
     if endpoint_url:
-        async for chunk in webhook_invoke_stream(
+        stream_fn = webhook_invoke_stream_a2a if endpoint_protocol == "a2a" else webhook_invoke_stream
+        async for chunk in stream_fn(
             endpoint_url, request_id, session_id, message, metadata,
             endpoint_api_key=endpoint_api_key, timeout=timeout,
         ):

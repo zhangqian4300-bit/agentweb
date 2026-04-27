@@ -22,6 +22,7 @@ class AgentCreate(BaseModel):
     category: Optional[str] = Field(None, max_length=50)
     endpoint_url: Optional[str] = Field(None, max_length=500)
     endpoint_api_key: Optional[str] = Field(None, max_length=500)
+    endpoint_protocol: str = Field(default="openai", pattern="^(openai|a2a)$")
 
 
 class AgentUpdate(BaseModel):
@@ -33,6 +34,7 @@ class AgentUpdate(BaseModel):
     category: Optional[str] = Field(None, max_length=50)
     endpoint_url: Optional[str] = Field(None, max_length=500)
     endpoint_api_key: Optional[str] = Field(None, max_length=500)
+    endpoint_protocol: Optional[str] = Field(None, pattern="^(openai|a2a)$")
 
 
 class AgentResponse(BaseModel):
@@ -48,6 +50,7 @@ class AgentResponse(BaseModel):
     total_calls: int
     avg_response_time_ms: int
     endpoint_url: Optional[str] = None
+    endpoint_protocol: str = "openai"
     is_listed: bool
     author_name: Optional[str] = None
     created_at: datetime

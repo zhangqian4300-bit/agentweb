@@ -47,6 +47,7 @@ Reply ONLY with the JSON object, no markdown fences, no extra text."""
 class FetchCardRequest(BaseModel):
     endpoint_url: str = Field(..., max_length=500)
     endpoint_api_key: Optional[str] = Field(None, max_length=500)
+    endpoint_protocol: str = Field(default="openai", pattern="^(openai|a2a)$")
 
 
 def _extract_base_url(endpoint_url: str) -> str:
@@ -58,11 +59,15 @@ def _extract_base_url(endpoint_url: str) -> str:
 
 
 async def _fetch_via_agent_json(base_url: str) -> Optional[Dict[str, Any]]:
-    card_url = f"{base_url}/.well-known/agent.json"
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.get(card_url)
-        resp.raise_for_status()
-        return resp.json()
+    for path in ["/.well-known/agent-card.json", "/.well-known/agent.json"]:
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(f"{base_url}{path}")
+                resp.raise_for_status()
+                return resp.json()
+        except Exception:
+            continue
+    return None
 
 
 async def _fetch_via_self_intro(
@@ -90,6 +95,72 @@ async def _fetch_via_self_intro(
     return json.loads(content)
 
 
+async def _invoke_a2a_stream(endpoint_url: str, message: str, endpoint_api_key: Optional[str] = None, timeout: float = 120.0) -> str:
+    from app.services.webhook_service import (
+        _build_a2a_v1_payload, _iter_a2a_v1_sse, _derive_a2a_v1_url,
+        _build_a2a_payload, _iter_a2a_legacy_sse,
+    )
+    headers = {"Content-Type": "application/json"}
+    if endpoint_api_key:
+        headers["Authorization"] = f"Bearer {endpoint_api_key}"
+
+    v1_url = _derive_a2a_v1_url(endpoint_url, "stream")
+    v1_payload = _build_a2a_v1_payload(message, {})
+    try:
+        async with httpx.AsyncClient() as client:
+            async with client.stream("POST", v1_url, json=v1_payload, headers=headers, timeout=timeout) as resp:
+                if resp.status_code != 404:
+                    resp.raise_for_status()
+                    collected = ""
+                    async for kind, value in _iter_a2a_v1_sse(resp):
+                        if kind == "content":
+                            collected += value
+                    return collected
+    except (httpx.HTTPStatusError, httpx.ConnectError):
+        pass
+
+    url = endpoint_url.rstrip("/")
+    payload = _build_a2a_payload(str(uuid.uuid4().hex[:8]), message, {})
+    collected = ""
+    async with httpx.AsyncClient() as client:
+        async with client.stream("POST", url, json=payload, headers=headers, timeout=timeout) as resp:
+            resp.raise_for_status()
+            async for kind, value in _iter_a2a_legacy_sse(resp):
+                if kind == "content":
+                    collected += value
+    return collected
+
+
+async def _fetch_via_self_intro_a2a(
+    endpoint_url: str, endpoint_api_key: Optional[str] = None,
+) -> Dict[str, Any]:
+    from app.services.webhook_service import _build_a2a_v1_payload, _extract_a2a_v1_response, _derive_a2a_v1_url
+    headers = {"Content-Type": "application/json"}
+    if endpoint_api_key:
+        headers["Authorization"] = f"Bearer {endpoint_api_key}"
+
+    v1_url = _derive_a2a_v1_url(endpoint_url, "send")
+    v1_payload = _build_a2a_v1_payload(_SELF_INTRO_PROMPT, {})
+    try:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            resp = await client.post(v1_url, json=v1_payload, headers=headers, timeout=120.0)
+            if resp.status_code != 404:
+                resp.raise_for_status()
+                content = _extract_a2a_v1_response(resp.json())
+                content = content.strip()
+                if content.startswith("```"):
+                    content = content.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+                return json.loads(content)
+    except (httpx.HTTPStatusError, httpx.ConnectError, json.JSONDecodeError):
+        pass
+
+    content = await _invoke_a2a_stream(endpoint_url, _SELF_INTRO_PROMPT, endpoint_api_key)
+    content = content.strip()
+    if content.startswith("```"):
+        content = content.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+    return json.loads(content)
+
+
 @router.post("/fetch-card")
 async def fetch_agent_card(
     data: FetchCardRequest,
@@ -97,13 +168,13 @@ async def fetch_agent_card(
 ) -> Dict[str, Any]:
     base_url = _extract_base_url(data.endpoint_url)
 
-    try:
-        return await _fetch_via_agent_json(base_url)
-    except Exception:
-        pass
+    card = await _fetch_via_agent_json(base_url)
+    if card:
+        return card
 
+    intro_fn = _fetch_via_self_intro_a2a if data.endpoint_protocol == "a2a" else _fetch_via_self_intro
     try:
-        result = await _fetch_via_self_intro(data.endpoint_url, data.endpoint_api_key)
+        result = await intro_fn(data.endpoint_url, data.endpoint_api_key)
         result["_source"] = "self_intro"
         return result
     except httpx.TimeoutException:
@@ -152,11 +223,13 @@ Reply ONLY with the JSON object."""
 class ProbeRequest(BaseModel):
     endpoint_url: str = Field(..., max_length=500)
     endpoint_api_key: Optional[str] = Field(None, max_length=500)
+    endpoint_protocol: str = Field(default="openai", pattern="^(openai|a2a)$")
 
 
 class RunTestRequest(BaseModel):
     endpoint_url: str = Field(..., max_length=500)
     endpoint_api_key: Optional[str] = Field(None, max_length=500)
+    endpoint_protocol: str = Field(default="openai", pattern="^(openai|a2a)$")
     test_input: str
     expected: str
 
@@ -168,24 +241,25 @@ class SuggestPricingRequest(BaseModel):
 
 @router.post("/probe")
 async def probe_agent(data: ProbeRequest) -> Dict[str, Any]:
-    url = _build_url(data.endpoint_url)
-    headers = {"Content-Type": "application/json"}
-    if data.endpoint_api_key:
-        headers["Authorization"] = f"Bearer {data.endpoint_api_key}"
-
-    payload = {
-        "model": "default",
-        "messages": [{"role": "user", "content": _TEST_CASES_PROMPT}],
-        "stream": False,
-    }
-
     try:
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            resp = await client.post(url, json=payload, headers=headers, timeout=120.0)
-            resp.raise_for_status()
-            raw = resp.json()
+        if data.endpoint_protocol == "a2a":
+            content = await _invoke_a2a_stream(data.endpoint_url, _TEST_CASES_PROMPT, data.endpoint_api_key)
+        else:
+            url = _build_url(data.endpoint_url)
+            headers = {"Content-Type": "application/json"}
+            if data.endpoint_api_key:
+                headers["Authorization"] = f"Bearer {data.endpoint_api_key}"
+            payload = {
+                "model": "default",
+                "messages": [{"role": "user", "content": _TEST_CASES_PROMPT}],
+                "stream": False,
+            }
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                resp = await client.post(url, json=payload, headers=headers, timeout=120.0)
+                resp.raise_for_status()
+                raw = resp.json()
+            content = raw.get("choices", [{}])[0].get("message", {}).get("content", "")
 
-        content = raw.get("choices", [{}])[0].get("message", {}).get("content", "")
         content = content.strip()
         if content.startswith("```"):
             content = content.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
@@ -206,26 +280,26 @@ async def probe_agent(data: ProbeRequest) -> Dict[str, Any]:
 
 @router.post("/run-test")
 async def run_test(data: RunTestRequest) -> Dict[str, Any]:
-    url = _build_url(data.endpoint_url)
-    headers = {"Content-Type": "application/json"}
-    if data.endpoint_api_key:
-        headers["Authorization"] = f"Bearer {data.endpoint_api_key}"
-
-    payload = {
-        "model": "default",
-        "messages": [{"role": "user", "content": data.test_input}],
-        "stream": False,
-    }
-
     start = time.monotonic()
     try:
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(url, json=payload, headers=headers, timeout=180.0)
-            resp.raise_for_status()
-            raw = resp.json()
+        if data.endpoint_protocol == "a2a":
+            content = await _invoke_a2a_stream(data.endpoint_url, data.test_input, data.endpoint_api_key, timeout=180.0)
+        else:
+            url = _build_url(data.endpoint_url)
+            headers = {"Content-Type": "application/json"}
+            if data.endpoint_api_key:
+                headers["Authorization"] = f"Bearer {data.endpoint_api_key}"
+            payload = {
+                "model": "default",
+                "messages": [{"role": "user", "content": data.test_input}],
+                "stream": False,
+            }
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(url, json=payload, headers=headers, timeout=180.0)
+                resp.raise_for_status()
+                raw = resp.json()
+            content = raw.get("choices", [{}])[0].get("message", {}).get("content", "")
         elapsed_ms = int((time.monotonic() - start) * 1000)
-
-        content = raw.get("choices", [{}])[0].get("message", {}).get("content", "")
 
         evaluation = await chat_completion_json([
             {

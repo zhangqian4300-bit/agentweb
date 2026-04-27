@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.v1.a2a import router as a2a_router
 from app.api.v1.agent_hub import router as agent_hub_router
 from app.api.v1.agents import router as agents_router
 from app.api.v1.api_keys import router as api_keys_router
@@ -22,3 +23,4 @@ router.include_router(dashboard_router)
 router.include_router(tasks_router)
 router.include_router(upload_router)
 router.include_router(agent_hub_router)
+router.include_router(a2a_router)

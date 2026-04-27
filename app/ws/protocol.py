@@ -51,3 +51,34 @@ class ErrorMessage(WSMessage):
     type: str = "error"
     request_id: Optional[str] = None
     detail: str
+
+
+class TypingMessage(WSMessage):
+    type: str = "typing"
+    request_id: str
+    status: str  # "typing" | "tool_running" | "idle"
+
+
+class EditMessage(WSMessage):
+    type: str = "edit"
+    request_id: str
+    text: str
+    update_mode: str = "replace"  # "replace" | "append"
+
+
+class ToolProgressMessage(WSMessage):
+    type: str = "tool_progress"
+    request_id: str
+    tool: str
+    emoji: str = ""
+    label: str = ""
+    status: str = "running"  # "running" | "done"
+
+
+class SendMessage(WSMessage):
+    type: str = "send"
+    request_id: str
+    text: str
+    message_type: str = "text"  # "text" | "image" | "file" | "mixed"
+    image_urls: list = []
+    file_urls: list = []

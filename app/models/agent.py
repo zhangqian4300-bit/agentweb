@@ -33,4 +33,5 @@ class Agent(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     last_online_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     endpoint_url: Mapped[Optional[str]] = mapped_column(String(500))
     endpoint_api_key: Mapped[Optional[str]] = mapped_column(String(500))
+    endpoint_protocol: Mapped[str] = mapped_column(String(20), default="openai")
     is_listed: Mapped[bool] = mapped_column(Boolean, default=True, index=True)

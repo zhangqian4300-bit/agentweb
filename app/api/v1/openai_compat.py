@@ -110,6 +110,7 @@ async def chat_completions(
         metadata=metadata,
         endpoint_url=agent.endpoint_url,
         endpoint_api_key=agent.endpoint_api_key,
+        endpoint_protocol=agent.endpoint_protocol or "openai",
     )
 
     usage_data = response.get("usage", {})
@@ -166,6 +167,7 @@ async def _stream_generator(
         metadata=metadata,
         endpoint_url=agent.endpoint_url,
         endpoint_api_key=agent.endpoint_api_key,
+        endpoint_protocol=agent.endpoint_protocol or "openai",
     ):
         chunk_type = chunk.get("type")
         if chunk_type == "stream_chunk":
@@ -179,6 +181,12 @@ async def _stream_generator(
                     ],
                 ).model_dump_json()
             }
+        elif chunk_type == "typing":
+            yield {"event": "typing", "data": json.dumps({"status": chunk.get("status", "typing")})}
+        elif chunk_type == "edit":
+            yield {"event": "edit", "data": json.dumps({"text": chunk.get("text", ""), "update_mode": chunk.get("update_mode", "replace")})}
+        elif chunk_type == "tool_progress":
+            yield {"event": "tool_progress", "data": json.dumps({"tool": chunk.get("tool", ""), "emoji": chunk.get("emoji", ""), "label": chunk.get("label", ""), "status": chunk.get("status", "running")})}
         elif chunk_type == "stream_end":
             usage = chunk.get("usage", {})
             input_tokens = usage.get("input_tokens", 0)
