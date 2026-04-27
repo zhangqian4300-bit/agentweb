@@ -171,7 +171,7 @@ export default function PublishPage() {
           pricing?: number;
           capabilities?: { name: string; description: string }[];
         }>("/api/v1/agent-hub/status");
-        if (status.status === "pending_review" && status.name) {
+        if (status.status === "pending_review") {
           clearInterval(timer);
           setPollTimer(null);
           setWaitingAgent(false);

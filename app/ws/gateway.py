@@ -103,10 +103,16 @@ async def _do_intro(ws: WebSocket) -> dict:
         "message": _INTRO_PROMPT,
     })
 
-    raw = await asyncio.wait_for(ws.receive_text(), timeout=INTRO_TIMEOUT)
-    msg = json.loads(raw)
-    if msg.get("type") != "output":
-        return {}
+    deadline = asyncio.get_event_loop().time() + INTRO_TIMEOUT
+    while True:
+        remaining = deadline - asyncio.get_event_loop().time()
+        if remaining <= 0:
+            return {}
+        raw = await asyncio.wait_for(ws.receive_text(), timeout=remaining)
+        msg = json.loads(raw)
+        if msg.get("type") == "output":
+            break
+        # skip pong, heartbeat, etc.
 
     content = msg.get("content", "").strip()
     if content.startswith("```"):
@@ -136,7 +142,7 @@ async def _find_or_create_agent(user_id: uuid.UUID, intro: dict) -> Agent:
             await db.refresh(agent)
             return agent
 
-        name = intro.get("name", "Unnamed Agent")
+        name = intro.get("name") or "Unnamed Agent"
         description = intro.get("description", "")
         version = intro.get("version", "1.0.0")
         capabilities = intro.get("capabilities", [])
