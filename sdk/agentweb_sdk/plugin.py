@@ -161,6 +161,10 @@ class AgentWebPlugin:
         if gen:
             async for chunk in gen:
                 if isinstance(chunk, dict):
+                    chunk_type = chunk.get("type")
+                    if chunk_type in ("typing", "edit", "tool_progress"):
+                        await send({**chunk, "request_id": request_id})
+                        continue
                     usage = chunk.get("usage", usage)
                     content = chunk.get("content", "")
                     if content:
