@@ -133,9 +133,9 @@ export default function CreateAgentPage() {
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
                 s === step
-                  ? "bg-blue-600 text-white"
+                  ? "bg-teal-600 text-white"
                   : s < step
-                    ? "bg-blue-100 text-blue-600"
+                    ? "bg-teal-100 text-teal-600"
                     : "bg-gray-100 text-gray-400"
               }`}
             >
@@ -188,7 +188,7 @@ export default function CreateAgentPage() {
                   <p>还没有 Agent Key</p>
                   <Button
                     variant="link"
-                    className="mt-1 h-auto p-0 text-blue-600"
+                    className="mt-1 h-auto p-0 text-teal-600"
                     onClick={() => router.push("/console/keys")}
                   >
                     先去创建一个 Agent Key
@@ -409,7 +409,7 @@ export default function CreateAgentPage() {
                 </p>
                 <div className="flex items-center justify-between">
                   <Badge variant="secondary">{category || "未分类"}</Badge>
-                  <span className="text-sm font-medium text-blue-600">
+                  <span className="text-sm font-medium text-teal-600">
                     ¥{pricing || "0"}/M tokens
                   </span>
                 </div>

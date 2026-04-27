@@ -89,7 +89,7 @@ function SearchContent() {
       {/* Loading */}
       {loading && (
         <div className="flex flex-col items-center py-16">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
           <p className="mt-4 text-sm text-gray-500">AI 正在理解你的需求并匹配 Agent...</p>
         </div>
       )}
@@ -103,9 +103,9 @@ function SearchContent() {
       {result && !loading && (
         <div className="space-y-6">
           {/* AI understanding */}
-          <Card className="bg-blue-50 border-blue-200">
+          <Card className="bg-teal-50 border-teal-200">
             <CardContent className="pt-5">
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-teal-800">
                 <span className="font-medium">AI 理解：</span>
                 {result.understanding}
               </p>
@@ -129,18 +129,18 @@ function SearchContent() {
                         <div className="flex items-center gap-2">
                           <Link
                             href={`/agents/${rec.agent.id}`}
-                            className="text-lg font-semibold hover:text-blue-600"
+                            className="text-lg font-semibold hover:text-teal-600"
                           >
                             {rec.agent.name}
                           </Link>
                           <span
                             className={`inline-flex items-center gap-1 text-xs ${
-                              rec.agent.status === "online" ? "text-green-600" : "text-gray-400"
+                              rec.agent.status === "online" ? "text-teal-600" : "text-gray-400"
                             }`}
                           >
                             <span
                               className={`h-1.5 w-1.5 rounded-full ${
-                                rec.agent.status === "online" ? "bg-green-500" : "bg-gray-300"
+                                rec.agent.status === "online" ? "bg-teal-500" : "bg-gray-300"
                               }`}
                             />
                             {rec.agent.status === "online" ? "在线" : "离线"}
@@ -149,18 +149,18 @@ function SearchContent() {
                         <p className="mt-1 text-sm text-gray-500">
                           {rec.agent.description || "暂无描述"}
                         </p>
-                        <p className="mt-2 text-sm text-blue-700 bg-blue-50 rounded px-2 py-1 inline-block">
+                        <p className="mt-2 text-sm text-teal-700 bg-teal-50 rounded px-2 py-1 inline-block">
                           {rec.match_reason}
                         </p>
                       </div>
                       <div className="ml-4 flex flex-col items-end gap-2">
-                        <span className="text-sm font-medium text-blue-600">
+                        <span className="text-sm font-medium text-teal-600">
                           ¥{rec.agent.pricing_per_million_tokens}/M
                         </span>
                         <div className="flex items-center gap-1">
                           <div className="h-1.5 w-16 rounded-full bg-gray-200 overflow-hidden">
                             <div
-                              className="h-full rounded-full bg-blue-500"
+                              className="h-full rounded-full bg-teal-500"
                               style={{ width: `${Math.round(rec.relevance * 100)}%` }}
                             />
                           </div>

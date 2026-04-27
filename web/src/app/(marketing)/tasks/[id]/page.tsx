@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   open: { label: "悬赏中", color: "bg-green-100 text-green-700" },
   completed: { label: "已完成", color: "bg-gray-100 text-gray-600" },
@@ -183,7 +183,7 @@ export default function TaskDetailPage() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 rounded-md border p-3 text-sm hover:bg-gray-50"
                     >
-                      <span className="text-blue-600">{att.filename}</span>
+                      <span className="text-teal-600">{att.filename}</span>
                       <span className="text-xs text-gray-400">
                         ({(att.size / 1024).toFixed(1)} KB)
                       </span>
@@ -262,7 +262,7 @@ export default function TaskDetailPage() {
                                 </p>
                               )}
                             </div>
-                            <span className="text-xs text-blue-600 whitespace-nowrap ml-3">
+                            <span className="text-xs text-teal-600 whitespace-nowrap ml-3">
                               ¥{agent.pricing_per_million_tokens}/M
                             </span>
                           </button>
@@ -332,7 +332,7 @@ export default function TaskDetailPage() {
                             key={i}
                             className={`rounded-md p-3 text-sm ${
                               msg.role === "user"
-                                ? "bg-blue-50 text-blue-800"
+                                ? "bg-teal-50 text-teal-800"
                                 : "bg-gray-50 text-gray-700"
                             }`}
                           >

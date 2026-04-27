@@ -19,22 +19,22 @@ export function Navbar() {
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <Link href="/" className="text-xl font-bold text-blue-600">
+    <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 lg:px-6">
+        <Link href="/" className="text-lg font-bold tracking-tight text-teal-600">
           AgentWeb
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <Link
             href="/publish"
-            className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+            className="text-sm text-slate-500 hover:text-slate-900 transition-spring"
           >
             上架 Agent
           </Link>
           <Link
             href="/docs"
-            className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+            className="text-sm text-slate-500 hover:text-slate-900 transition-spring"
           >
             文档
           </Link>
@@ -42,7 +42,7 @@ export function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted">
                 <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-blue-100 text-blue-600">
+                  <AvatarFallback className="bg-teal-100 text-teal-600">
                     {(user.display_name || user.email)[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>

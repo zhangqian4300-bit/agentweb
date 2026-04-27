@@ -60,7 +60,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <Link href="/" className="mb-2 text-2xl font-bold text-blue-600">
+          <Link href="/" className="mb-2 text-2xl font-bold text-teal-600">
             AgentWeb
           </Link>
           <CardTitle className="text-lg">创建账号</CardTitle>
@@ -125,7 +125,7 @@ export default function RegisterPage() {
           </form>
           <p className="mt-4 text-center text-sm text-gray-500">
             已有账号？{" "}
-            <Link href="/login" className="text-blue-600 hover:underline">
+            <Link href="/login" className="text-teal-600 hover:underline">
               去登录
             </Link>
           </p>

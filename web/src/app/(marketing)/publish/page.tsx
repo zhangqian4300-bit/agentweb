@@ -88,6 +88,7 @@ export default function PublishPage() {
   // Step 1: Connect (endpoint mode)
   const [endpointUrl, setEndpointUrl] = useState("");
   const [endpointApiKey, setEndpointApiKey] = useState("");
+  const [endpointProtocol, setEndpointProtocol] = useState<"openai" | "a2a">("openai");
   const [showApiKey, setShowApiKey] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [fetchError, setFetchError] = useState("");
@@ -210,7 +211,7 @@ export default function PublishPage() {
     try {
       const card = await api<AgentCard>("/api/v1/agents/fetch-card", {
         method: "POST",
-        body: { endpoint_url: endpointUrl, endpoint_api_key: endpointApiKey || undefined },
+        body: { endpoint_url: endpointUrl, endpoint_api_key: endpointApiKey || undefined, endpoint_protocol: endpointProtocol },
       });
       setName(card.name || "");
       setDescription(card.description || "");
@@ -240,7 +241,7 @@ export default function PublishPage() {
     } finally {
       setFetching(false);
     }
-  }, [endpointUrl, endpointApiKey]);
+  }, [endpointUrl, endpointApiKey, endpointProtocol]);
 
   // Step 2: Probe for test cases
   const handleProbe = useCallback(async () => {
@@ -248,7 +249,7 @@ export default function PublishPage() {
     try {
       const result = await api<{ test_cases: TestCase[] }>("/api/v1/agents/probe", {
         method: "POST",
-        body: { endpoint_url: endpointUrl, endpoint_api_key: endpointApiKey || undefined },
+        body: { endpoint_url: endpointUrl, endpoint_api_key: endpointApiKey || undefined, endpoint_protocol: endpointProtocol },
       });
       setTestCases(result.test_cases || []);
     } catch {
@@ -258,7 +259,7 @@ export default function PublishPage() {
     } finally {
       setProbing(false);
     }
-  }, [endpointUrl, endpointApiKey]);
+  }, [endpointUrl, endpointApiKey, endpointProtocol]);
 
   const addTestCase = () => {
     setTestCases([...testCases, { input: "", expected: "", capability: "" }]);
@@ -288,6 +289,7 @@ export default function PublishPage() {
           body: {
             endpoint_url: endpointUrl,
             endpoint_api_key: endpointApiKey || undefined,
+            endpoint_protocol: endpointProtocol,
             test_input: testCases[i].input,
             expected: testCases[i].expected,
           },
@@ -313,7 +315,7 @@ export default function PublishPage() {
 
     setTestingIndex(-1);
     setTestingDone(true);
-  }, [testCases, endpointUrl, endpointApiKey]);
+  }, [testCases, endpointUrl, endpointApiKey, endpointProtocol]);
 
   // Step 4: Get pricing suggestion
   const handleGetPricing = useCallback(async () => {
@@ -381,6 +383,7 @@ export default function PublishPage() {
           })),
           endpoint_url: endpointUrl || undefined,
           endpoint_api_key: endpointApiKey || undefined,
+          endpoint_protocol: endpointUrl ? endpointProtocol : undefined,
         },
       });
       toast.success("Agent 已上架！");
@@ -436,7 +439,7 @@ export default function PublishPage() {
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors ${
                 step >= n
-                  ? "bg-blue-600 text-white"
+                  ? "bg-teal-600 text-white"
                   : "bg-gray-200 text-gray-400"
               }`}
             >
@@ -445,7 +448,7 @@ export default function PublishPage() {
             <span className={`text-sm ${step >= n ? "text-gray-900" : "text-gray-400"}`}>
               {label}
             </span>
-            {idx < arr.length - 1 && <div className={`mx-2 h-px w-8 ${step > n ? "bg-blue-600" : "bg-gray-200"}`} />}
+            {idx < arr.length - 1 && <div className={`mx-2 h-px w-8 ${step > n ? "bg-teal-600" : "bg-gray-200"}`} />}
           </div>
         ))}
       </div>
@@ -530,7 +533,7 @@ export default function PublishPage() {
                   </>
                 ) : (
                   <div className="flex flex-col items-center py-8">
-                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
                     <p className="mt-4 text-sm text-gray-600">等待 Agent 连接...</p>
                     <p className="mt-1 text-xs text-gray-400">
                       Agent 连接后会自动完成自我介绍和注册
@@ -545,11 +548,37 @@ export default function PublishPage() {
           {connectMode === "endpoint" && (
             <Card>
               <CardContent className="pt-6 space-y-4">
+                {/* Protocol Selector */}
+                <div className="space-y-2">
+                  <Label>端点协议</Label>
+                  <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1">
+                    <button
+                      onClick={() => setEndpointProtocol("openai")}
+                      className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                        endpointProtocol === "openai"
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      OpenAI 兼容
+                    </button>
+                    <button
+                      onClick={() => setEndpointProtocol("a2a")}
+                      className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                        endpointProtocol === "a2a"
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      A2A 协议
+                    </button>
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <Label>Agent 端点 URL</Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="https://your-agent.example.com"
+                      placeholder={endpointProtocol === "a2a" ? "https://your-agent.example.com/a2a/rpc" : "https://your-agent.example.com"}
                       value={endpointUrl}
                       onChange={(e) => setEndpointUrl(e.target.value)}
                       className="flex-1"
@@ -593,14 +622,14 @@ export default function PublishPage() {
               <CardContent className="pt-6 space-y-4">
                 <div className="flex gap-2 text-sm">
                   <button
-                    className={authMode === "register" ? "font-medium text-blue-600" : "text-gray-400"}
+                    className={authMode === "register" ? "font-medium text-teal-600" : "text-gray-400"}
                     onClick={() => setAuthMode("register")}
                   >
                     注册
                   </button>
                   <span className="text-gray-300">|</span>
                   <button
-                    className={authMode === "login" ? "font-medium text-blue-600" : "text-gray-400"}
+                    className={authMode === "login" ? "font-medium text-teal-600" : "text-gray-400"}
                     onClick={() => setAuthMode("login")}
                   >
                     登录
@@ -669,7 +698,7 @@ export default function PublishPage() {
             <CardContent className="space-y-4">
               {probing ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
                   <span className="ml-3 text-sm text-gray-500">正在向 Agent 获取测试用例...</span>
                 </div>
               ) : (
@@ -755,7 +784,7 @@ export default function PublishPage() {
             </div>
             <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
               <div
-                className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                className="h-full rounded-full bg-teal-600 transition-all duration-500"
                 style={{ width: `${(completedTests / Math.max(testCases.length, 1)) * 100}%` }}
               />
             </div>
@@ -769,7 +798,7 @@ export default function PublishPage() {
               const isPending = !result && !isRunning;
 
               return (
-                <Card key={i} className={`transition-all ${isRunning ? "ring-2 ring-blue-400" : ""}`}>
+                <Card key={i} className={`transition-all ${isRunning ? "ring-2 ring-teal-400" : ""}`}>
                   <CardContent className="pt-5 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -780,8 +809,8 @@ export default function PublishPage() {
                       </div>
                       {isRunning && (
                         <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-                          <span className="text-xs text-blue-600">测试中...</span>
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
+                          <span className="text-xs text-teal-600">测试中...</span>
                         </div>
                       )}
                       {result && (
@@ -846,7 +875,7 @@ export default function PublishPage() {
                   <div>
                     <p className={`text-2xl font-bold ${
                       avgGrade.startsWith("A") ? "text-green-600" :
-                      avgGrade.startsWith("B") ? "text-blue-600" :
+                      avgGrade.startsWith("B") ? "text-teal-600" :
                       avgGrade.startsWith("C") ? "text-yellow-600" : "text-red-600"
                     }`}>{avgGrade}</p>
                     <p className="text-xs text-gray-400">综合评分</p>
@@ -866,7 +895,7 @@ export default function PublishPage() {
           {connectMode === "endpoint" && loadingPricing ? (
             <Card>
               <CardContent className="py-8 flex items-center justify-center">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
                 <span className="ml-3 text-sm text-gray-500">正在分析定价...</span>
               </CardContent>
             </Card>
@@ -876,8 +905,8 @@ export default function PublishPage() {
                 <CardTitle className="text-lg">定价建议</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="rounded-lg bg-blue-50 p-4">
-                  <p className="text-sm text-blue-800">{pricingSuggestion.reasoning}</p>
+                <div className="rounded-lg bg-teal-50 p-4">
+                  <p className="text-sm text-teal-800">{pricingSuggestion.reasoning}</p>
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-center text-sm">
                   <div className="rounded-lg border p-3">
@@ -898,7 +927,7 @@ export default function PublishPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">建议区间</span>
-                    <span className="font-medium text-blue-600">
+                    <span className="font-medium text-teal-600">
                       ¥{pricingSuggestion.suggested_low} - ¥{pricingSuggestion.suggested_high} / 百万 tokens
                     </span>
                   </div>
@@ -956,14 +985,14 @@ export default function PublishPage() {
               <CardContent className="pt-6 space-y-4">
                 <div className="flex gap-2 text-sm">
                   <button
-                    className={authMode === "register" ? "font-medium text-blue-600" : "text-gray-400"}
+                    className={authMode === "register" ? "font-medium text-teal-600" : "text-gray-400"}
                     onClick={() => setAuthMode("register")}
                   >
                     注册
                   </button>
                   <span className="text-gray-300">|</span>
                   <button
-                    className={authMode === "login" ? "font-medium text-blue-600" : "text-gray-400"}
+                    className={authMode === "login" ? "font-medium text-teal-600" : "text-gray-400"}
                     onClick={() => setAuthMode("login")}
                   >
                     登录

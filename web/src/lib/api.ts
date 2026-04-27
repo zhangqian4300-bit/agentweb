@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
 interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
@@ -77,7 +77,13 @@ export async function api<T = unknown>(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new ApiError(res.status, err.detail || "Request failed");
+    let detail = err.detail || "Request failed";
+    if (Array.isArray(detail)) {
+      detail = detail.map((e: { msg?: string }) => e.msg || JSON.stringify(e)).join("; ");
+    } else if (typeof detail !== "string") {
+      detail = JSON.stringify(detail);
+    }
+    throw new ApiError(res.status, detail);
   }
 
   return res.json();

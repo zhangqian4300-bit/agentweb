@@ -116,46 +116,67 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-blue-50 to-white px-4 py-20 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-          描述你的问题，AI 帮你找到合适的 Agent
-        </h1>
-        <p className="mt-3 text-lg text-gray-500">
-          用自然语言描述需求，智能匹配最佳 Agent；找不到就发悬赏
-        </p>
-        <div className="mx-auto mt-8 max-w-lg">
-          <div className="flex gap-2">
-            <Input
-              placeholder="描述你想解决的问题，如：我需要分析蛋白质结构..."
-              value={smartQuery}
-              onChange={(e) => setSmartQuery(e.target.value)}
-              className="h-12 rounded-full bg-white px-6 text-base shadow-sm flex-1"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && smartQuery.trim()) {
-                  router.push(`/search?q=${encodeURIComponent(smartQuery.trim())}`);
-                }
-              }}
-            />
-            <Button
-              className="h-12 rounded-full px-6"
-              onClick={() => {
-                if (smartQuery.trim()) {
-                  router.push(`/search?q=${encodeURIComponent(smartQuery.trim())}`);
-                }
-              }}
-            >
-              智能搜索
-            </Button>
+      <section className="px-4 py-20">
+        <div className="mx-auto max-w-7xl grid grid-cols-1 items-center gap-12 lg:grid-cols-5">
+          <div className="lg:col-span-3">
+            <h1 className="text-[clamp(1.875rem,4vw,2.5rem)] font-bold tracking-tight text-[#18181B] leading-tight">
+              描述你的问题，<br className="hidden sm:block" />AI 帮你找到合适的 Agent
+            </h1>
+            <p className="mt-3 text-lg text-slate-500 max-w-xl">
+              用自然语言描述需求，智能匹配最佳 Agent；找不到就发悬赏
+            </p>
+            <div className="mt-8 max-w-lg">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="描述你想解决的问题，如：我需要分析蛋白质结构..."
+                  value={smartQuery}
+                  onChange={(e) => setSmartQuery(e.target.value)}
+                  className="h-12 rounded-full bg-white px-6 text-base shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)] flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && smartQuery.trim()) {
+                      router.push(`/search?q=${encodeURIComponent(smartQuery.trim())}`);
+                    }
+                  }}
+                />
+                <Button
+                  className="h-12 rounded-full px-6 bg-teal-600 hover:bg-teal-700"
+                  onClick={() => {
+                    if (smartQuery.trim()) {
+                      router.push(`/search?q=${encodeURIComponent(smartQuery.trim())}`);
+                    }
+                  }}
+                >
+                  智能搜索
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="hidden lg:flex lg:col-span-2 items-center justify-center">
+            <div className="relative w-full max-w-xs">
+              <div className="absolute -top-4 -left-4 h-40 w-40 rounded-2xl bg-teal-50 opacity-60" />
+              <div className="absolute -bottom-4 -right-4 h-32 w-32 rounded-2xl bg-slate-100" />
+              <div className="relative rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-3 w-3 rounded-full bg-teal-500 animate-online-pulse" />
+                  <span className="text-sm font-medium text-slate-700">Agent 网络</span>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-2.5 w-full rounded bg-slate-100" />
+                  <div className="h-2.5 w-3/4 rounded bg-slate-100" />
+                  <div className="h-2.5 w-5/6 rounded bg-teal-50" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Tab Switcher */}
       <section className="mx-auto max-w-7xl px-4 pt-8">
-        <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1 w-fit">
+        <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-1 w-fit">
           <button
             onClick={() => setTab("agents")}
-            className={`rounded-md px-5 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-md px-5 py-2 text-sm font-medium pill-transition ${
               tab === "agents"
                 ? "bg-white text-gray-900 shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
@@ -165,7 +186,7 @@ export default function HomePage() {
           </button>
           <button
             onClick={() => setTab("tasks")}
-            className={`rounded-md px-5 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-md px-5 py-2 text-sm font-medium pill-transition ${
               tab === "tasks"
                 ? "bg-white text-gray-900 shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
@@ -187,9 +208,9 @@ export default function HomePage() {
                   <button
                     key={cat}
                     onClick={() => setCategory(cat)}
-                    className={`rounded-full px-4 py-1.5 text-sm transition-colors ${
+                    className={`rounded-full px-4 py-1.5 text-sm pill-transition ${
                       category === cat
-                        ? "bg-blue-600 text-white"
+                        ? "bg-teal-600 text-white shadow-sm"
                         : "bg-white text-gray-600 hover:bg-gray-100"
                     }`}
                   >
@@ -210,7 +231,7 @@ export default function HomePage() {
                       key={opt.value}
                       onClick={() => setSort(opt.value)}
                       className={`text-sm transition-colors ${
-                        sort === opt.value ? "font-medium text-blue-600" : "text-gray-400 hover:text-gray-600"
+                        sort === opt.value ? "font-medium text-teal-600" : "text-gray-400 hover:text-gray-600"
                       }`}
                     >
                       {opt.label}
@@ -226,7 +247,20 @@ export default function HomePage() {
             {agentLoading ? (
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-48 animate-pulse rounded-lg bg-gray-200" />
+                  <div key={i} className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="skeleton h-5 w-32" />
+                      <div className="skeleton h-4 w-10" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="skeleton h-3.5 w-full" />
+                      <div className="skeleton h-3.5 w-3/4" />
+                    </div>
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="skeleton h-6 w-16 rounded-full" />
+                      <div className="skeleton h-4 w-24" />
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : agents.length === 0 ? (
@@ -236,20 +270,25 @@ export default function HomePage() {
             ) : (
               <>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {agents.map((agent) => (
-                    <Link key={agent.id} href={`/agents/${agent.id}`}>
-                      <Card className="h-full transition-shadow hover:shadow-md">
+                  {agents.map((agent, i) => (
+                    <Link
+                      key={agent.id}
+                      href={`/agents/${agent.id}`}
+                      className="animate-fade-up"
+                      style={{ "--stagger-index": i } as React.CSSProperties}
+                    >
+                      <Card className="h-full card-hover">
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
                             <CardTitle className="text-lg">{agent.name}</CardTitle>
                             <span
                               className={`inline-flex items-center gap-1 text-xs ${
-                                agent.status === "online" ? "text-green-600" : "text-gray-400"
+                                agent.status === "online" ? "text-teal-600" : "text-gray-400"
                               }`}
                             >
                               <span
-                                className={`h-2 w-2 rounded-full ${
-                                  agent.status === "online" ? "bg-green-500" : "bg-gray-300"
+                                className={`h-1.5 w-1.5 rounded-full ${
+                                  agent.status === "online" ? "bg-teal-500 animate-online-pulse" : "bg-gray-300"
                                 }`}
                               />
                               {agent.status === "online" ? "在线" : "离线"}
@@ -262,11 +301,11 @@ export default function HomePage() {
                           </p>
                           <div className="mt-4 flex items-center justify-between">
                             <Badge variant="secondary">{agent.category || "其他"}</Badge>
-                            <span className="text-sm font-medium text-blue-600">
+                            <span className="text-sm font-medium text-teal-600 font-mono">
                               ¥{agent.pricing_per_million_tokens}/M tokens
                             </span>
                           </div>
-                          <div className="mt-3 flex gap-4 text-xs text-gray-400">
+                          <div className="mt-3 flex gap-4 text-xs text-gray-400 font-mono">
                             <span>{agent.total_calls} 次调用</span>
                             <span>
                               {agent.avg_response_time_ms > 0
@@ -358,7 +397,20 @@ export default function HomePage() {
             {taskLoading ? (
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-40 animate-pulse rounded-lg bg-gray-200" />
+                  <div key={i} className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="skeleton h-5 w-40" />
+                      <div className="skeleton h-5 w-12 rounded-full" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="skeleton h-3.5 w-full" />
+                      <div className="skeleton h-3.5 w-2/3" />
+                    </div>
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="skeleton h-6 w-16 rounded-full" />
+                      <div className="skeleton h-6 w-16" />
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : tasks.length === 0 ? (
@@ -373,11 +425,16 @@ export default function HomePage() {
             ) : (
               <>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {tasks.map((task) => {
+                  {tasks.map((task, i) => {
                     const statusInfo = STATUS_LABELS[task.status] || STATUS_LABELS.open;
                     return (
-                      <Link key={task.id} href={`/tasks/${task.id}`}>
-                        <Card className="h-full transition-shadow hover:shadow-md">
+                      <Link
+                        key={task.id}
+                        href={`/tasks/${task.id}`}
+                        className="animate-fade-up"
+                        style={{ "--stagger-index": i } as React.CSSProperties}
+                      >
+                        <Card className="h-full card-hover">
                           <CardHeader className="pb-3">
                             <div className="flex items-start justify-between">
                               <CardTitle className="text-lg line-clamp-1">{task.title}</CardTitle>

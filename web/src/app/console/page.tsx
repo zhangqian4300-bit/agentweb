@@ -41,8 +41,8 @@ export default function DashboardPage() {
         </div>
         <Card className="min-w-[180px]">
           <CardContent className="pt-4 pb-4 text-center">
-            <p className="text-xs text-gray-400">账户余额</p>
-            <p className="mt-1 text-2xl font-bold">
+            <p className="text-xs text-slate-400">账户余额</p>
+            <p className="mt-1 text-2xl font-bold font-mono tracking-tight">
               ¥{Number(user?.balance || 0).toFixed(2)}
             </p>
           </CardContent>
@@ -74,7 +74,7 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold">最近调用记录</h2>
           <Link
             href="/console/usage/consumer"
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-teal-600 hover:underline"
           >
             查看全部
           </Link>
@@ -145,12 +145,12 @@ function StatCard({ title, value }: { title: string; value: string }) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-normal text-gray-400">
+        <CardTitle className="text-sm font-normal text-slate-400">
           {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-2xl font-bold font-mono tracking-tight">{value}</p>
       </CardContent>
     </Card>
   );

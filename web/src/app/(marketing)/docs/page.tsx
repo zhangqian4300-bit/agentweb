@@ -25,7 +25,7 @@ function Step({
   return (
     <div className="flex gap-4">
       <div className="flex flex-col items-center">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-medium text-white">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-600 text-sm font-medium text-white">
           {index}
         </div>
         <div className="mt-2 w-px flex-1 bg-gray-200" />
@@ -46,7 +46,7 @@ function ConsumerGuide() {
       <Step index={1} title="注册账号">
         <p>
           访问{" "}
-          <Link href="/register" className="text-blue-600 hover:underline">
+          <Link href="/register" className="text-teal-600 hover:underline">
             注册页面
           </Link>
           ，填写邮箱和密码即可完成注册。新账号会获得初始余额用于体验。
@@ -56,7 +56,7 @@ function ConsumerGuide() {
       <Step index={2} title="创建 API Key">
         <p>
           登录后进入{" "}
-          <Link href="/console/keys" className="text-blue-600 hover:underline">
+          <Link href="/console/keys" className="text-teal-600 hover:underline">
             控制台 → API Key 管理
           </Link>
           ，点击「创建新 Key」，类型选择 <strong>API Key</strong>。
@@ -69,7 +69,7 @@ function ConsumerGuide() {
       <Step index={3} title="浏览市场，选择 Agent">
         <p>
           回到{" "}
-          <Link href="/" className="text-blue-600 hover:underline">
+          <Link href="/" className="text-teal-600 hover:underline">
             首页市场
           </Link>
           ，按分类、关键词搜索你需要的 Agent。点击进入详情页可以查看能力描述、定价、在线试用。
@@ -153,7 +153,7 @@ Body:
       <Step index={6} title="查看用量与费用">
         <p>
           在{" "}
-          <Link href="/console/usage/consumer" className="text-blue-600 hover:underline">
+          <Link href="/console/usage/consumer" className="text-teal-600 hover:underline">
             控制台 → 调用记录
           </Link>
           {" "}中可以查看每次调用的 token 用量和扣费明细。费用按 Agent 定价的「每百万 tokens」计算，从账户余额中实时扣除。
@@ -169,7 +169,7 @@ function DeveloperGuide() {
       <Step index={1} title="注册账号">
         <p>
           访问{" "}
-          <Link href="/register" className="text-blue-600 hover:underline">
+          <Link href="/register" className="text-teal-600 hover:underline">
             注册页面
           </Link>
           ，注册一个开发者账号。同一个账号可以同时作为开发者和使用者。
@@ -227,7 +227,7 @@ Body:
       <Step index={4} title="上架到市场">
         <p>
           登录后进入{" "}
-          <Link href="/console/agents/new" className="text-blue-600 hover:underline">
+          <Link href="/console/agents/new" className="text-teal-600 hover:underline">
             控制台 → 创建 Agent
           </Link>
           ，按照引导完成三步操作：
@@ -255,7 +255,7 @@ Body:
       <Step index={6} title="查看收益">
         <p>
           在{" "}
-          <Link href="/console/usage/provider" className="text-blue-600 hover:underline">
+          <Link href="/console/usage/provider" className="text-teal-600 hover:underline">
             控制台 → 收益记录
           </Link>
           {" "}中查看每次被调用的详细记录，包括 token 用量、收入金额。
@@ -303,30 +303,30 @@ export default function DocsPage() {
         </CardContent>
       </Card>
 
-      <div className="mt-8 rounded-lg border bg-blue-50 p-6">
-        <h2 className="font-semibold text-blue-800">核心概念</h2>
+      <div className="mt-8 rounded-lg border bg-teal-50 p-6">
+        <h2 className="font-semibold text-teal-800">核心概念</h2>
         <dl className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <dt className="text-sm font-medium text-blue-700">API Key</dt>
-            <dd className="mt-1 text-sm text-blue-600/80">
+            <dt className="text-sm font-medium text-teal-700">API Key</dt>
+            <dd className="mt-1 text-sm text-teal-600/80">
               使用者调用 Agent 时的认证凭证，类型为 <code className="text-xs">api_key</code>
             </dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-blue-700">Agent Key</dt>
-            <dd className="mt-1 text-sm text-blue-600/80">
+            <dt className="text-sm font-medium text-teal-700">Agent Key</dt>
+            <dd className="mt-1 text-sm text-teal-600/80">
               开发者注册 Agent 时的认证凭证，类型为 <code className="text-xs">agent_key</code>
             </dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-blue-700">OpenAI 兼容接口</dt>
-            <dd className="mt-1 text-sm text-blue-600/80">
+            <dt className="text-sm font-medium text-teal-700">OpenAI 兼容接口</dt>
+            <dd className="mt-1 text-sm text-teal-600/80">
               平台对外提供 <code className="text-xs">/v1/chat/completions</code>，任何支持 OpenAI API 的工具可直接接入
             </dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-blue-700">Agent Card</dt>
-            <dd className="mt-1 text-sm text-blue-600/80">
+            <dt className="text-sm font-medium text-teal-700">Agent Card</dt>
+            <dd className="mt-1 text-sm text-teal-600/80">
               开发者 Agent 的自描述文件 <code className="text-xs">/.well-known/agent.json</code>，用于自动填充上架信息
             </dd>
           </div>

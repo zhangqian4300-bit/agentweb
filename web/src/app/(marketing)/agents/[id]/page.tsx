@@ -16,9 +16,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
-const WS_BASE = API_BASE.replace(/^http/, "ws");
+function getWsBase() {
+  if (API_BASE) return API_BASE.replace(/^http/, "ws");
+  if (typeof window === "undefined") return "";
+  const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${proto}//${window.location.host}`;
+}
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -63,7 +68,7 @@ function Playground({ agentId }: { agentId: string }) {
     setConnecting(true);
     setError("");
 
-    const ws = new WebSocket(`${WS_BASE}/ws/chat?api_key=${encodeURIComponent(apiKey)}`);
+    const ws = new WebSocket(`${getWsBase()}/ws/chat?api_key=${encodeURIComponent(apiKey)}`);
     wsRef.current = ws;
 
     ws.onopen = () => {};
@@ -178,7 +183,7 @@ function Playground({ agentId }: { agentId: string }) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-sm text-gray-400">
-          <Link href={`/login?redirect=/agents/${agentId}`} className="text-blue-600 hover:underline">
+          <Link href={`/login?redirect=/agents/${agentId}`} className="text-teal-600 hover:underline">
             登录
           </Link>
           {" "}后可在此试用 Agent
@@ -216,7 +221,7 @@ function Playground({ agentId }: { agentId: string }) {
               />
               <p className="text-xs text-gray-400">
                 还没有？
-                <Link href="/console/keys" className="text-blue-600 hover:underline">去创建</Link>
+                <Link href="/console/keys" className="text-teal-600 hover:underline">去创建</Link>
               </p>
             </div>
             <Button onClick={connect} disabled={!apiKey || connecting} className="w-full">
@@ -242,7 +247,7 @@ function Playground({ agentId }: { agentId: string }) {
                   <div
                     className={`max-w-[80%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm ${
                       msg.role === "user"
-                        ? "bg-blue-600 text-white"
+                        ? "bg-teal-600 text-white"
                         : "bg-white text-gray-800 shadow-sm"
                     }`}
                   >
@@ -316,7 +321,7 @@ function QuickConnect({ agent }: { agent: Agent }) {
   const { user } = useAuth();
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [tab, setTab] = useState<"env" | "python" | "curl">("env");
-  const exampleBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:8000";
+  const exampleBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   // 部署时设置环境变量 NEXT_PUBLIC_SITE_URL 为实际域名，如 https://agentweb.example.com
 
   useEffect(() => {
@@ -388,7 +393,7 @@ function QuickConnect({ agent }: { agent: Agent }) {
         </pre>
         {!user && (
           <p className="text-xs text-gray-400">
-            <Link href={`/login?redirect=/agents/${agent.id}`} className="text-blue-600 hover:underline">
+            <Link href={`/login?redirect=/agents/${agent.id}`} className="text-teal-600 hover:underline">
               登录
             </Link>
             {" "}后自动填充你的 API Key
@@ -418,7 +423,25 @@ export default function AgentDetailPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-12">
-        <div className="h-96 animate-pulse rounded-lg bg-gray-200" />
+        <div className="space-y-6">
+          <div className="skeleton h-6 w-24" />
+          <div className="space-y-3">
+            <div className="skeleton h-8 w-64" />
+            <div className="skeleton h-4 w-48" />
+            <div className="skeleton h-4 w-full max-w-lg" />
+            <div className="skeleton h-4 w-3/4 max-w-lg" />
+          </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-4">
+              <div className="skeleton h-40 w-full" />
+              <div className="skeleton h-40 w-full" />
+            </div>
+            <div className="space-y-4">
+              <div className="skeleton h-24 w-full" />
+              <div className="skeleton h-32 w-full" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -510,10 +533,10 @@ export default function AgentDetailPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-blue-600">
+                <p className="text-3xl font-bold text-teal-600 font-mono tracking-tight">
                   ¥{agent.pricing_per_million_tokens}
                 </p>
-                <p className="mt-1 text-sm text-gray-400">/ 百万 tokens</p>
+                <p className="mt-1 text-sm text-slate-400">/ 百万 tokens</p>
               </div>
             </CardContent>
           </Card>
@@ -523,12 +546,12 @@ export default function AgentDetailPage() {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">总调用次数</span>
-                <span className="font-medium">{agent.total_calls}</span>
+                <span className="text-slate-400">总调用次数</span>
+                <span className="font-medium font-mono">{agent.total_calls}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">平均响应时间</span>
-                <span className="font-medium">
+                <span className="text-slate-400">平均响应时间</span>
+                <span className="font-medium font-mono">
                   {agent.avg_response_time_ms > 0 ? `${agent.avg_response_time_ms}ms` : "-"}
                 </span>
               </div>
